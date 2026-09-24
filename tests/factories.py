@@ -288,7 +288,11 @@ def make_system_setting(*, changed_by=None, **overrides):
         "changed_at": timezone.now(),
         **overrides,
     }
-    return SystemSetting.objects.create(**values)
+    setting, _ = SystemSetting.objects.update_or_create(
+        singleton_key=1,
+        defaults=values,
+    )
+    return setting
 
 
 def make_audit_event(*, actor=None, **overrides):
