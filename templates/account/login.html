@@ -1,0 +1,43 @@
+{% extends "base_auth.html" %}
+
+{% block title %}Sign in · PathGen{% endblock %}
+
+{% block content %}
+  <div class="grid w-full gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-center lg:gap-20">
+    <section class="max-w-xl" aria-labelledby="welcome-title">
+      <a href="{% url 'account:login' %}" class="inline-flex min-h-11 items-center text-2xl font-bold tracking-[-0.03em] text-[var(--color-foreground)]">
+        PathGen
+      </a>
+      <h1 id="welcome-title" class="mt-10 max-w-lg text-balance text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+        Continue your mathematics learning path.
+      </h1>
+      <p class="mt-5 max-w-[65ch] text-lg leading-8 text-[var(--color-foreground-muted)]">
+        Sign in to return to your assigned PathGen workspace. Your next available step is determined securely after authentication.
+      </p>
+    </section>
+
+    <section class="rounded-xl bg-[var(--color-surface)] p-6 shadow-md sm:p-8" aria-labelledby="sign-in-title">
+      <h2 id="sign-in-title" class="text-2xl font-semibold tracking-[-0.02em]">Sign in</h2>
+      <p class="mt-2 text-sm leading-6 text-[var(--color-foreground-muted)]">Use the username and password provided by your administrator.</p>
+
+      <form method="post" action="{% url 'account:login' %}" class="mt-7 space-y-5" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% include "account/_form_errors.html" with form=form %}
+
+        <div>
+          <label for="{{ form.username.id_for_label }}" class="text-sm font-medium">Username</label>
+          {{ form.username }}
+        </div>
+        <div>
+          <label for="{{ form.password.id_for_label }}" class="text-sm font-medium">Password</label>
+          {{ form.password }}
+        </div>
+        <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 py-2.5 font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)] disabled:cursor-not-allowed disabled:opacity-60">
+          Sign in
+        </button>
+      </form>
+    </section>
+  </div>
+{% endblock %}
+

@@ -1,0 +1,29 @@
+{% extends "base_auth.html" %}
+
+{% block title %}Change name · PathGen{% endblock %}
+
+{% block content %}
+  <section class="mx-auto w-full max-w-xl" aria-labelledby="name-title">
+    <a href="{% url 'account:my_account' %}" class="inline-flex min-h-11 items-center text-sm font-semibold text-[var(--color-info-fg)] underline underline-offset-4">Back to my account</a>
+    <h1 id="name-title" class="mt-8 text-4xl font-semibold tracking-[-0.03em]">Change your name</h1>
+    <p class="mt-3 text-[var(--color-foreground-muted)]">Your username and role will not change.</p>
+
+    <form method="post" class="mt-8 space-y-5" novalidate>
+      {% csrf_token %}
+      {% include "account/_form_errors.html" with form=form %}
+      <div>
+        <label for="{{ form.first_name.id_for_label }}" class="text-sm font-medium">First name</label>
+        {{ form.first_name }}
+      </div>
+      <div>
+        <label for="{{ form.last_name.id_for_label }}" class="text-sm font-medium">Last name</label>
+        {{ form.last_name }}
+      </div>
+      <div class="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
+        <a href="{% url 'account:my_account' %}" class="inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-2.5 font-semibold text-[var(--color-info-fg)]">Cancel</a>
+        <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-primary)] px-5 py-2.5 font-semibold text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-hover)]">Save name</button>
+      </div>
+    </form>
+  </section>
+{% endblock %}
+
