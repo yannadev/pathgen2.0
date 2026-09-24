@@ -2,8 +2,25 @@ from __future__ import annotations
 
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
+
+
+def _changed_fields(instance: models.Model, field_names: tuple[str, ...]) -> list[str]:
+    if instance._state.adding:
+        return []
+    current = type(instance).objects.filter(pk=instance.pk).first()
+    if current is None:
+        return []
+    return [name for name in field_names if getattr(current, name) != getattr(instance, name)]
+
+
+def _reject_published_change(label: str, changed: list[str]) -> None:
+    if changed:
+        raise ValidationError(
+            f"Published {label} is immutable; attempted to change: {', '.join(changed)}."
+        )
 
 
 class Skill(models.Model):
@@ -26,6 +43,26 @@ class Skill(models.Model):
             models.CheckConstraint(condition=Q(p_g__gte=0, p_g__lte=1), name="skill_p_g_valid"),
             models.CheckConstraint(condition=Q(p_s__gte=0, p_s__lte=1), name="skill_p_s_valid"),
         ]
+
+    def save(self, *args, **kwargs):
+        changed = _changed_fields(
+            self,
+            ("code", "name", "description", "p_l0", "p_t", "p_g", "p_s"),
+        )
+        if changed and (
+            self.lesson_skills.filter(lesson__is_published=True).exists()
+            or self.questions.filter(is_published=True).exists()
+        ):
+            _reject_published_change("skill", changed)
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if (
+            self.lesson_skills.filter(lesson__is_published=True).exists()
+            or self.questions.filter(is_published=True).exists()
+        ):
+            raise ValidationError("A skill used by published curriculum cannot be deleted.")
+        return super().delete(*args, **kwargs)
 
 
 class Lesson(models.Model):
@@ -54,6 +91,33 @@ class Lesson(models.Model):
             models.Index(fields=["is_published", "lesson_order"], name="lesson_published_order_idx"),
         ]
 
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            current = type(self).objects.filter(pk=self.pk).first()
+            if current is not None and current.is_published:
+                _reject_published_change(
+                    "lesson",
+                    _changed_fields(
+                        self,
+                        (
+                            "code",
+                            "slug",
+                            "lesson_order",
+                            "title",
+                            "summary",
+                            "content_json",
+                            "content_schema_version",
+                            "is_published",
+                        ),
+                    ),
+                )
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.is_published:
+            raise ValidationError("Published lesson content cannot be deleted.")
+        return super().delete(*args, **kwargs)
+
 
 class LessonSkill(models.Model):
     pk = models.CompositePrimaryKey("lesson", "skill")
@@ -68,6 +132,21 @@ class LessonSkill(models.Model):
             models.UniqueConstraint(fields=["lesson", "display_order"], name="lesson_skill_order_unique"),
             models.CheckConstraint(condition=Q(display_order__in=[1, 2]), name="lesson_skill_order_valid"),
         ]
+
+    def save(self, *args, **kwargs):
+        existing = type(self).objects.filter(
+            lesson_id=self.lesson_id, skill_id=self.skill_id
+        ).first()
+        if self.lesson.is_published and (
+            existing is None or existing.display_order != self.display_order
+        ):
+            raise ValidationError("Published lesson skill mappings are immutable.")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.lesson.is_published:
+            raise ValidationError("Published lesson skill mappings cannot be deleted.")
+        return super().delete(*args, **kwargs)
 
 
 class Video(models.Model):
@@ -86,6 +165,24 @@ class Video(models.Model):
             models.CheckConstraint(condition=Q(duration_seconds__gt=0), name="video_duration_positive"),
             models.CheckConstraint(condition=~Q(transcript=""), name="video_transcript_nonblank"),
         ]
+
+    @property
+    def embed_url(self) -> str:
+        return f"https://www.youtube-nocookie.com/embed/{self.youtube_video_id}"
+
+    def save(self, *args, **kwargs):
+        changed = _changed_fields(
+            self,
+            ("code", "title", "youtube_video_id", "duration_seconds", "transcript"),
+        )
+        if changed and self.questions.filter(is_published=True).exists():
+            _reject_published_change("video", changed)
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.questions.filter(is_published=True).exists():
+            raise ValidationError("A video used by published curriculum cannot be deleted.")
+        return super().delete(*args, **kwargs)
 
 
 class Question(models.Model):
@@ -221,6 +318,43 @@ class Question(models.Model):
             models.Index(fields=["difficulty"], name="question_difficulty_idx"),
         ]
 
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            current = type(self).objects.filter(pk=self.pk).first()
+            if current is not None and current.is_published:
+                _reject_published_change(
+                    "question",
+                    _changed_fields(
+                        self,
+                        (
+                            "code",
+                            "skill_id",
+                            "prompt",
+                            "difficulty",
+                            "presentation_type",
+                            "cognitive_level",
+                            "solution_steps_json",
+                            "explanation",
+                            "hint",
+                            "feedback_correct",
+                            "feedback_incorrect",
+                            "image_asset",
+                            "image_alt",
+                            "visual_component",
+                            "visual_config_json",
+                            "video_id",
+                            "video_pause_seconds",
+                            "is_published",
+                        ),
+                    ),
+                )
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.is_published:
+            raise ValidationError("Published questions cannot be deleted.")
+        return super().delete(*args, **kwargs)
+
 
 class QuestionChoice(models.Model):
     class Label(models.TextChoices):
@@ -250,6 +384,21 @@ class QuestionChoice(models.Model):
                 name="choice_one_correct",
             ),
         ]
+
+    def save(self, *args, **kwargs):
+        existing = type(self).objects.filter(pk=self.pk).first() if self.pk else None
+        changed = existing is None or any(
+            getattr(existing, field) != getattr(self, field)
+            for field in ("label", "text", "is_correct", "misconception_code", "display_order")
+        )
+        if self.question.is_published and changed:
+            raise ValidationError("Choices for a published question are immutable.")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.question.is_published:
+            raise ValidationError("Choices for a published question cannot be deleted.")
+        return super().delete(*args, **kwargs)
 
 
 class QuestionSet(models.Model):
@@ -303,6 +452,24 @@ class QuestionSet(models.Model):
             models.Index(fields=["skill"], name="qset_skill_idx"),
         ]
 
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            current = type(self).objects.filter(pk=self.pk).first()
+            if current is not None and current.is_published:
+                _reject_published_change(
+                    "question set",
+                    _changed_fields(
+                        self,
+                        ("name", "set_type", "lesson_id", "skill_id", "is_published"),
+                    ),
+                )
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.is_published:
+            raise ValidationError("Published question sets cannot be deleted.")
+        return super().delete(*args, **kwargs)
+
 
 class QuestionSetItem(models.Model):
     pk = models.CompositePrimaryKey("question_set", "question")
@@ -325,3 +492,18 @@ class QuestionSetItem(models.Model):
             models.UniqueConstraint(fields=["question_set", "display_order"], name="qset_item_order_unique"),
             models.CheckConstraint(condition=Q(display_order__gt=0), name="qset_item_order_positive"),
         ]
+
+    def save(self, *args, **kwargs):
+        existing = type(self).objects.filter(
+            question_set_id=self.question_set_id, question_id=self.question_id
+        ).first()
+        if self.question_set.is_published and (
+            existing is None or existing.display_order != self.display_order
+        ):
+            raise ValidationError("Items in a published question set are immutable.")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        if self.question_set.is_published:
+            raise ValidationError("Items in a published question set cannot be deleted.")
+        return super().delete(*args, **kwargs)

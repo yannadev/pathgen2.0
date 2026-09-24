@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pathgen.local/schemas/media_manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "videos", "static_lesson_image_root", "lesson_image_directories"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "videos": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["code", "title", "youtube_video_id", "canonical_url", "approved_segments", "duration_seconds", "duration_status", "transcript_path", "transcript_status"],
+        "additionalProperties": false,
+        "properties": {
+          "code": {"type": "string", "minLength": 1}, "title": {"type": "string", "minLength": 1},
+          "youtube_video_id": {"type": "string", "pattern": "^[A-Za-z0-9_-]{11}$"},
+          "canonical_url": {"type": "string", "pattern": "^https://www\\.youtube\\.com/watch\\?v=[A-Za-z0-9_-]{11}$"},
+          "approved_segments": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["start_seconds", "end_seconds", "label"],
+              "additionalProperties": false,
+              "properties": {
+                "start_seconds": {"type": "number", "minimum": 0},
+                "end_seconds": {"type": "number", "exclusiveMinimum": 0},
+                "label": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "duration_seconds": {"type": "integer", "exclusiveMinimum": 0}, "duration_status": {"const": "verified"},
+          "transcript_path": {"type": "string", "minLength": 1}, "transcript_status": {"const": "ready"}
+        }
+      }
+    },
+    "static_lesson_image_root": {"const": "static/src/images/lessons"},
+    "lesson_image_directories": {"const": ["lesson-01", "lesson-02", "lesson-03"]}
+  }
+}

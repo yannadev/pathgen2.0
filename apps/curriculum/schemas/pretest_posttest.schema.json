@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pathgen.local/schemas/pretest_posttest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "assessment_code", "source_pdf", "source_sha256", "source_title", "reuse_for_session_types", "display_contract", "questions", "question_set"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "assessment_code": {"type": "string", "minLength": 1},
+    "source_pdf": {"type": "string", "minLength": 1},
+    "source_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_title": {"type": "string", "minLength": 1},
+    "reuse_for_session_types": {"const": ["pretest", "posttest"]},
+    "display_contract": {"type": "object"},
+    "questions": {"type": "array", "minItems": 30, "maxItems": 30, "items": {"$ref": "https://pathgen.local/schemas/common.schema.json#/$defs/question"}},
+    "question_set": {"$ref": "https://pathgen.local/schemas/common.schema.json#/$defs/question_set"}
+  }
+}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Questions · Content · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl">
+    <h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Published questions</h1>
+    <p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Browse exercise and activity items with answer keys, feedback, and approved media. The protected pre-test/post-test set is intentionally excluded.</p>
+  </header>
+
+  <form method="get" class="surface-panel mt-8 grid gap-4 p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end" aria-label="Question filters">
+    <div><label for="type" class="text-sm font-semibold">Question type</label><select id="type" name="type" class="mt-2 min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3"><option value="">All exercise and activity types</option>{% for value, label in set_types %}<option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
+    <div><label for="skill" class="text-sm font-semibold">Skill</label><select id="skill" name="skill" class="mt-2 min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3"><option value="">All six skills</option>{% for skill in skills %}<option value="{{ skill.code }}" {% if selected_skill == skill.code %}selected{% endif %}>{{ skill.code }} · {{ skill.name }}</option>{% endfor %}</select></div>
+    <button type="submit" class="button-primary">Apply filters</button>
+  </form>
+
+  <p class="mt-5 text-sm text-[var(--color-foreground-muted)]" role="status">{{ questions|length }} question{{ questions|length|pluralize }} shown</p>
+  <div class="mt-4 space-y-3">
+    {% for question in questions %}
+      <details class="surface-panel group overflow-hidden">
+        <summary class="flex min-h-20 cursor-pointer list-none items-center justify-between gap-4 p-5 sm:px-6">
+          <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><span class="font-semibold">{{ question.code }}</span><span class="status-badge" data-state="active">{{ question.skill.code }}</span>{% for question_set in question.content_sets %}<span class="rounded-full bg-[var(--color-secondary)] px-2.5 py-1 text-xs font-medium">{{ question_set.get_set_type_display }}</span>{% endfor %}</div><p class="mt-2 line-clamp-2 text-sm leading-6 text-[var(--color-foreground-muted)]">{{ question.prompt }}</p></div>
+          <i data-lucide="chevron-down" aria-hidden="true" class="size-5 shrink-0 transition-transform group-open:rotate-180"></i>
+        </summary>
+        <div class="border-t border-[var(--color-border)] px-5 py-6 sm:px-6">
+          <h2 class="max-w-[72ch] text-lg font-semibold leading-7">{{ question.prompt }}</h2>
+          {% if question.presentation_type == 'figure' %}
+            {% if question.image_asset %}<figure class="mt-4"><img src="{% static 'images/' %}{{ question.image_asset }}" alt="{{ question.image_alt }}" class="max-h-96 rounded-[var(--radius-md)] object-contain"><figcaption class="mt-2 text-sm text-[var(--color-foreground-muted)]">{{ question.image_alt }}</figcaption></figure>{% else %}{% include "shared/_safe_visual.html" with alt_text=question.image_alt component_label=question.visual_component %}{% endif %}
+          {% elif question.presentation_type == 'video' %}
+            <section class="mt-5"><div class="aspect-video max-w-3xl overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-secondary)]"><iframe class="size-full" src="{{ question.embed_url }}" title="{{ question.video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><details class="mt-2"><summary class="min-h-11 cursor-pointer py-3 font-medium text-[var(--color-info-fg)]">Read transcript</summary><p class="max-w-[72ch] whitespace-pre-line text-sm leading-6 text-[var(--color-foreground-muted)]">{{ question.video.transcript }}</p></details></section>
+          {% endif %}
+          <ol class="mt-5 grid gap-3 sm:grid-cols-2" aria-label="Answer choices">
+            {% for choice in question.choices.all %}<li class="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] bg-[var(--color-secondary)] p-4"><span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface)] font-semibold">{{ choice.label }}</span><span class="min-w-0 flex-1">{{ choice.text }}</span>{% if choice.is_correct %}<span class="status-badge shrink-0" data-state="active"><i data-lucide="check" aria-hidden="true" class="size-4"></i>Official answer</span>{% endif %}</li>{% endfor %}
+          </ol>
+          <dl class="mt-6 grid gap-5 border-t border-[var(--color-border)] pt-5 lg:grid-cols-2"><div><dt class="font-semibold">Explanation</dt><dd class="mt-2 text-sm leading-6 text-[var(--color-foreground-muted)]">{{ question.explanation }}</dd></div><div><dt class="font-semibold">Incorrect-answer feedback</dt><dd class="mt-2 text-sm leading-6 text-[var(--color-foreground-muted)]">{{ question.feedback_incorrect }}</dd></div></dl>
+        </div>
+      </details>
+    {% empty %}
+      {% include "partials/empty_state.html" with empty_title="No matching questions" empty_body="No published exercise or activity questions match these filters. Change or clear a filter to continue." empty_icon="list-filter" %}
+    {% endfor %}
+  </div>
+{% endblock %}

@@ -126,8 +126,8 @@ The primary research outcome is matched learning gain: post-test score minus pre
 - Use Tailwind through the locked npm build pipeline, never CDN.
 - Use Preline from npm and initialize it with `HSStaticMethods.autoInit()`.
 - Use Geist, Lucide, Chart.js, and focused vanilla JavaScript modules.
-- Use the installed Impeccable skill for design, accessibility, and responsive QA.
-- Impeccable cannot change product rules, permissions, curriculum, or assessment content.
+- Follow the design contracts in `../pathgen2.0docs/documentation/`: `theme.css`, `pages.md`, `sidebar.md`, `modals.md`, `tech_stack.md`.
+- No external design skill. No Impeccable.
 - PathGen is permanently light-mode with no theme switcher or OS-driven dark mode.
 - Include `<meta name="color-scheme" content="only light">` before stylesheets.
 - Never add `.dark`, `dark:` utilities, or `prefers-color-scheme: dark`.

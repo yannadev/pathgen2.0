@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pathgen.local/schemas/manifest.schema.json",
+  "type": "object",
+  "required": ["schema_version", "curriculum_code", "lessons", "activity_path", "prepost_path", "media_manifest_path", "expected_counts", "bloom_distribution", "activity_skill_distribution", "adaptive_policy", "rag_policy"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "curriculum_code": {"type": "string", "minLength": 1},
+    "lessons": {
+      "type": "array", "minItems": 3, "maxItems": 3,
+      "items": {
+        "type": "object", "required": ["lesson_code", "path"], "additionalProperties": false,
+        "properties": {"lesson_code": {"pattern": "^L[1-3]$"}, "path": {"type": "string", "minLength": 1}}
+      }
+    },
+    "activity_path": {"type": "string", "minLength": 1},
+    "prepost_path": {"type": "string", "minLength": 1},
+    "media_manifest_path": {"type": "string", "minLength": 1},
+    "expected_counts": {
+      "type": "object",
+      "required": ["lessons", "skills", "regular_questions", "additional_questions", "foundational_questions", "activity_questions", "prepost_questions", "total_questions"],
+      "additionalProperties": false,
+      "properties": {
+        "lessons": {"const": 3}, "skills": {"const": 6}, "regular_questions": {"const": 30},
+        "additional_questions": {"const": 30}, "foundational_questions": {"const": 30},
+        "activity_questions": {"const": 15}, "prepost_questions": {"const": 30}, "total_questions": {"const": 135}
+      }
+    },
+    "bloom_distribution": {"type": "object"},
+    "activity_skill_distribution": {"type": "object"},
+    "adaptive_policy": {"type": "object"},
+    "rag_policy": {"type": "object"}
+  }
+}

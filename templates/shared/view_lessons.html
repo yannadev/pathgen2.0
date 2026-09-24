@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Lessons · Content · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl">
+    <h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Published lessons</h1>
+    <p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Review lesson explanations, worked examples, safe figures, and approved video segments. Curriculum changes are not available here.</p>
+  </header>
+
+  {% if lessons|length != 3 %}
+    <section class="mt-8 rounded-[var(--radius-lg)] bg-[var(--color-warning-bg)] p-5 text-[var(--color-warning-fg)]" role="status">
+      <h2 class="font-semibold">Published lesson configuration needs attention</h2>
+      <p class="mt-1 text-sm leading-6">PathGen expects three published lessons. Run curriculum validation and seed import before relying on this preview.</p>
+    </section>
+  {% endif %}
+
+  <div class="mt-8 space-y-8">
+    {% for lesson in lessons %}
+      <article class="surface-panel overflow-hidden" aria-labelledby="lesson-{{ lesson.lesson_order }}-title">
+        <header class="border-b border-[var(--color-border)] p-5 sm:p-6">
+          <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+            <div><h2 id="lesson-{{ lesson.lesson_order }}-title" class="text-2xl font-semibold tracking-[-0.02em]">Lesson {{ lesson.lesson_order }} · {{ lesson.title }}</h2><p class="mt-2 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">{{ lesson.summary }}</p></div>
+            <span class="status-badge shrink-0" data-state="active"><i data-lucide="circle-check" aria-hidden="true" class="size-4"></i>Published</span>
+          </div>
+          <dl class="mt-5 grid gap-3 sm:grid-cols-2">
+            {% for mapping in lesson.lesson_skills.all %}
+              <div class="rounded-[var(--radius-md)] bg-[var(--color-secondary)] p-4"><dt class="text-xs font-semibold tracking-[0.04em] text-[var(--color-foreground-muted)]">{{ mapping.skill.code }}</dt><dd class="mt-1 font-semibold">{{ mapping.skill.name }}</dd></div>
+            {% endfor %}
+          </dl>
+        </header>
+        <div class="p-5 sm:p-6">
+          {% for block in lesson.content_blocks %}
+            {% if block.type == 'objectives' %}
+              <section class="mb-7" aria-labelledby="lesson-{{ lesson.lesson_order }}-objectives"><h3 id="lesson-{{ lesson.lesson_order }}-objectives" class="text-lg font-semibold">Learning objectives</h3><ul class="mt-3 list-disc space-y-2 pl-5 text-[var(--color-foreground-muted)]">{% for item in block.items %}<li>{{ item }}</li>{% endfor %}</ul></section>
+            {% elif block.type == 'heading' %}
+              <h3 class="mb-3 mt-8 text-xl font-semibold">{{ block.text }}</h3>
+            {% elif block.type == 'paragraph' %}
+              <p class="my-3 max-w-[72ch] leading-7 text-[var(--color-foreground-muted)]">{{ block.text }}</p>
+            {% elif block.type == 'callout' %}
+              <aside class="my-6 rounded-[var(--radius-lg)] bg-[var(--color-info-bg)] p-5"><h3 class="font-semibold text-[var(--color-info-fg)]">{{ block.title }}</h3><p class="mt-2 max-w-[70ch] leading-7">{{ block.body }}</p></aside>
+            {% elif block.type == 'worked_example' %}
+              <section class="my-5 border-t border-[var(--color-border)] pt-5"><h3 class="font-semibold">{{ block.title }}</h3><p class="mt-2 max-w-[72ch] leading-7 text-[var(--color-foreground-muted)]">{{ block.body }}</p></section>
+            {% elif block.type == 'visual' %}
+              {% include "shared/_safe_visual.html" with alt_text=block.text_alternative component_label=block.component %}
+            {% elif block.type == 'video' and block.video %}
+              <section class="my-6" aria-label="Approved lesson video"><div class="aspect-video max-w-3xl overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-secondary)]"><iframe class="size-full" src="{{ block.embed_url }}" title="{{ block.video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><p class="mt-3 max-w-[70ch] text-sm leading-6 text-[var(--color-foreground-muted)]"><strong class="text-[var(--color-foreground)]">{{ block.segment_label }}:</strong> {{ block.takeaway }}</p><details class="mt-2"><summary class="min-h-11 cursor-pointer py-3 font-medium text-[var(--color-info-fg)]">Read transcript</summary><p class="max-w-[72ch] whitespace-pre-line text-sm leading-6 text-[var(--color-foreground-muted)]">{{ block.video.transcript }}</p></details></section>
+            {% elif block.type == 'practice_transition' %}
+              <p class="mt-7 rounded-[var(--radius-md)] bg-[var(--color-secondary)] p-4 text-sm font-medium">{{ block.text }}</p>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </article>
+    {% empty %}
+      {% include "partials/empty_state.html" with empty_title="No published lessons" empty_body="Curriculum validation or import has not completed. Ask an administrator to run the approved seed commands." empty_icon="book-x" %}
+    {% endfor %}
+  </div>
+{% endblock %}

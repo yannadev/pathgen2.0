@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pathgen.local/schemas/common.schema.json",
+  "$defs": {
+    "choice": {
+      "type": "object",
+      "required": ["label", "text", "is_correct", "display_order"],
+      "additionalProperties": false,
+      "properties": {
+        "label": {"enum": ["A", "B", "C", "D"]},
+        "text": {"type": "string", "minLength": 1},
+        "is_correct": {"type": "boolean"},
+        "display_order": {"type": "integer", "minimum": 1, "maximum": 4}
+      }
+    },
+    "solution_step": {
+      "type": "object",
+      "required": ["order", "text"],
+      "additionalProperties": false,
+      "properties": {
+        "order": {"type": "integer", "minimum": 1},
+        "text": {"type": "string", "minLength": 1}
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "code", "skill_code", "prompt", "difficulty", "presentation_type",
+        "cognitive_level", "choices", "solution_steps", "explanation", "hint",
+        "feedback_correct", "feedback_incorrect", "visual_component", "visual_config",
+        "image_asset", "image_alt", "video_code", "video_pause_seconds", "is_published"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "pattern": "^[A-Z0-9-]+$"},
+        "source_item_number": {"type": "integer", "minimum": 1, "maximum": 30},
+        "skill_code": {"type": "string", "pattern": "^S[1-6]$"},
+        "prompt": {"type": "string", "minLength": 1},
+        "difficulty": {"enum": ["standard", "foundational"]},
+        "presentation_type": {"enum": ["text", "figure", "video"]},
+        "cognitive_level": {"enum": ["remember", "understand", "apply", "analyze", "evaluate", "create"]},
+        "choices": {
+          "type": "array", "minItems": 4, "maxItems": 4,
+          "items": {"$ref": "#/$defs/choice"}
+        },
+        "solution_steps": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/solution_step"}
+        },
+        "explanation": {"type": "string", "minLength": 1},
+        "hint": {"type": ["string", "null"]},
+        "feedback_correct": {"type": "string", "minLength": 1},
+        "feedback_incorrect": {"type": "string", "minLength": 1},
+        "visual_component": {"type": ["string", "null"]},
+        "visual_config": {"type": ["object", "null"]},
+        "image_asset": {"type": ["string", "null"]},
+        "image_alt": {"type": ["string", "null"]},
+        "video_code": {"type": ["string", "null"]},
+        "video_pause_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "is_published": {"type": "boolean"}
+      }
+    },
+    "set_item": {
+      "type": "object",
+      "required": ["question_code", "display_order"],
+      "additionalProperties": false,
+      "properties": {
+        "question_code": {"type": "string", "minLength": 1},
+        "display_order": {"type": "integer", "minimum": 1}
+      }
+    },
+    "question_set": {
+      "type": "object",
+      "required": ["code", "name", "set_type", "lesson_code", "skill_code", "is_published", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "pattern": "^SET-[A-Z0-9-]+$"},
+        "name": {"type": "string", "minLength": 1},
+        "set_type": {"enum": ["prepost", "regular", "additional", "foundational", "activity"]},
+        "lesson_code": {"type": ["string", "null"]},
+        "skill_code": {"type": ["string", "null"]},
+        "is_published": {"type": "boolean"},
+        "items": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/set_item"}}
+      }
+    }
+  }
+}

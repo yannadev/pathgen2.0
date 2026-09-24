@@ -99,18 +99,9 @@ TIME_ZONE = "Asia/Manila"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_DIST_DIR = BASE_DIR / "static" / "dist"
-STATIC_FONT_DIR = BASE_DIR / "static" / "src" / "fonts"
-STATIC_IMAGE_DIR = BASE_DIR / "static" / "src" / "images"
-STATICFILES_DIRS = []
-if STATIC_DIST_DIR.exists():
-    STATICFILES_DIRS.append(("dist", STATIC_DIST_DIR))
-if STATIC_FONT_DIR.exists():
-    STATICFILES_DIRS.append(("fonts", STATIC_FONT_DIR))
-if STATIC_IMAGE_DIR.exists():
-    STATICFILES_DIRS.append(("images", STATIC_IMAGE_DIR))
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

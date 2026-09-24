@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Content · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl">
+    <h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Content</h1>
+    <p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Review the published curriculum exactly as learners receive it. This area is read-only and never exposes the protected pre-test/post-test set.</p>
+  </header>
+
+  <nav class="mt-8 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]" aria-label="Published curriculum">
+    <a href="{% url 'curriculum:lessons' %}" class="group flex min-h-28 items-center justify-between gap-5 py-6 hover:text-[var(--color-info-fg)]">
+      <div class="flex min-w-0 items-start gap-4">
+        <span class="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary-subtle)] text-[var(--color-info-fg)]"><i data-lucide="book-open-text" aria-hidden="true" class="size-5"></i></span>
+        <div><h2 class="text-xl font-semibold">Lessons</h2><p class="mt-1 max-w-[65ch] text-sm leading-6 text-[var(--color-foreground-muted)]">Browse {{ counts.lessons }} published lessons and the mapping for all {{ counts.skills }} skills.</p></div>
+      </div>
+      <i data-lucide="arrow-right" aria-hidden="true" class="size-5 shrink-0 transition-transform group-hover:translate-x-1"></i>
+    </a>
+    <a href="{% url 'curriculum:questions' %}" class="group flex min-h-28 items-center justify-between gap-5 py-6 hover:text-[var(--color-info-fg)]">
+      <div class="flex min-w-0 items-start gap-4">
+        <span class="flex size-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary-subtle)] text-[var(--color-info-fg)]"><i data-lucide="list-checks" aria-hidden="true" class="size-5"></i></span>
+        <div><h2 class="text-xl font-semibold">Questions</h2><p class="mt-1 max-w-[65ch] text-sm leading-6 text-[var(--color-foreground-muted)]">Inspect {{ counts.questions }} regular, additional, foundational, and activity questions with their answer keys and media.</p></div>
+      </div>
+      <i data-lucide="arrow-right" aria-hidden="true" class="size-5 shrink-0 transition-transform group-hover:translate-x-1"></i>
+    </a>
+  </nav>
+{% endblock %}

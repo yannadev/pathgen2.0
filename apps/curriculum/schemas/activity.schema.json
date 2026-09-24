@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pathgen.local/schemas/activity.schema.json",
+  "type": "object",
+  "required": ["schema_version", "questions", "question_set"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "questions": {"type": "array", "minItems": 15, "maxItems": 15, "items": {"$ref": "https://pathgen.local/schemas/common.schema.json#/$defs/question"}},
+    "question_set": {"$ref": "https://pathgen.local/schemas/common.schema.json#/$defs/question_set"}
+  }
+}
