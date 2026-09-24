@@ -1,13 +1,19 @@
 """Deterministic settings for tests and CI checks."""
 
 import os
+from pathlib import Path
 
+from dotenv import load_dotenv
+
+from config.environment import postgres_database, require_env
+
+
+load_dotenv(Path(__file__).resolve().parents[2] / ".env", override=False)
+
+_database_url = require_env("DATABASE_URL")
+postgres_database(_database_url)
 
 os.environ.setdefault("SECRET_KEY", "test-only-pathgen-secret-key")
-os.environ.setdefault(
-    "DATABASE_URL",
-    "postgresql://pathgen_test:pathgen_test@localhost:5432/pathgen_test",
-)
 os.environ.setdefault("GROQ_MODEL", "gpt-oss-120b")
 os.environ.setdefault("EMBEDDING_MODEL", "text-embedding-3-small")
 
