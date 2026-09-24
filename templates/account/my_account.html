@@ -1,20 +1,11 @@
-{% extends "base_auth.html" %}
+{% extends "base.html" %}
 
 {% block title %}My account · PathGen{% endblock %}
 
 {% block content %}
-  <section class="mx-auto w-full max-w-2xl" aria-labelledby="account-title">
-    <a href="{% url 'account:my_account' %}" class="inline-flex min-h-11 items-center text-2xl font-bold tracking-[-0.03em]">PathGen</a>
-    <h1 id="account-title" class="mt-10 text-4xl font-semibold tracking-[-0.03em]">My account</h1>
+  <section class="w-full max-w-2xl" aria-labelledby="account-title">
+    <h1 id="account-title" class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">My account</h1>
     <p class="mt-3 text-[var(--color-foreground-muted)]">Manage only your own name, password, and current session.</p>
-
-    {% if messages %}
-      <div class="mt-6 space-y-3" aria-live="polite">
-        {% for message in messages %}
-          <p class="rounded-lg bg-[var(--color-success-bg)] px-4 py-3 text-sm font-medium text-[var(--color-success-fg)]">{{ message }}</p>
-        {% endfor %}
-      </div>
-    {% endif %}
 
     <dl class="mt-8 grid gap-x-8 gap-y-5 border-y border-[var(--color-border)] py-6 sm:grid-cols-2">
       <div>
@@ -32,10 +23,9 @@
     </dl>
 
     <nav class="mt-8 flex flex-col gap-3 sm:flex-row" aria-label="Account actions">
-      <a href="{% url 'account:update_name' %}" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-primary)] px-5 py-2.5 font-semibold text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-hover)]">Change name</a>
-      <a href="{% url 'account:update_password' %}" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-secondary)] px-5 py-2.5 font-semibold text-[var(--color-secondary-foreground)] hover:bg-[var(--color-secondary-hover)]">Change password</a>
-      <a href="{% url 'account:logout' %}" class="inline-flex min-h-11 items-center justify-center rounded-lg px-5 py-2.5 font-semibold text-[var(--color-info-fg)] underline decoration-1 underline-offset-4">Log out</a>
+      <a href="{% url 'account:update_name' %}" class="button-primary">Change name</a>
+      <a href="{% url 'account:update_password' %}" class="button-secondary">Change password</a>
+      <a href="{% url 'account:logout' %}" class="button-quiet text-[var(--color-info-fg)]" data-dialog-open="logout-confirm">Log out</a>
     </nav>
   </section>
 {% endblock %}
-

@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ classroom.code }} · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl"><div class="flex flex-wrap items-center gap-3"><h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">{{ classroom.code }} · {{ classroom.name }}</h1><span class="status-badge" data-state="active">Active</span></div><p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Read-only current roster. Membership supports monitoring and does not determine any student’s learning access.</p></header>
+  <section class="surface-panel mt-8 overflow-hidden" aria-labelledby="roster-title">
+    <div class="p-5 sm:p-6"><h2 id="roster-title" class="text-xl font-semibold">Current roster</h2><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Only open memberships in this currently assigned class are shown.</p></div>
+    {% if memberships %}<div class="overflow-x-auto border-t border-[var(--color-border)]"><table class="data-table min-w-full"><thead><tr><th scope="col">Student</th><th scope="col">Username</th><th scope="col">Joined</th></tr></thead><tbody>{% for membership in memberships %}<tr><td class="font-semibold">{{ membership.student.get_full_name|default:membership.student.username }}</td><td>{{ membership.student.username }}</td><td class="whitespace-nowrap text-sm tabular-nums">{{ membership.joined_at|date:"M j, Y" }}</td></tr>{% endfor %}</tbody></table></div>{% else %}{% include "partials/empty_state.html" with empty_title="No current students" empty_body="This class has no open memberships. An administrator manages roster changes." empty_icon="users" %}{% endif %}
+  </section>
+{% endblock %}

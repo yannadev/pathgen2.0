@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'delete' as action_url %}
+{% include "modals/_form_dialog.html" with form=delete_form dialog_id='delete-class-confirm' dialog_name='delete' title='Permanently delete this unused class?' description='This exceptional action is allowed only for an archived, unassigned class created in error with no membership history. Enter the exact class code and a reason.' context_note=selected_class.code submit_label='Delete unused class' action_url=action_url danger=True %}

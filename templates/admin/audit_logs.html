@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Logs · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl"><h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Audit logs</h1><p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Immutable, minimized records of sensitive administration and security events. This Phase 4 shell intentionally omits advanced filtering and detail views.</p></header>
+  <section class="surface-panel mt-8 overflow-hidden" aria-label="Audit events">
+    {% if page_obj.object_list %}<div class="overflow-x-auto"><table class="data-table min-w-full"><thead><tr><th scope="col">Action</th><th scope="col">Actor</th><th scope="col">Target</th><th scope="col">Reason</th><th scope="col">Created</th></tr></thead><tbody>{% for event in page_obj %}<tr><td class="font-medium">{{ event.action }}</td><td>{{ event.actor.get_full_name|default:event.actor.username|default:"System" }}</td><td><span class="font-mono text-xs">{{ event.target_type }}</span></td><td class="max-w-sm text-[var(--color-foreground-muted)]">{{ event.reason|default:"—" }}</td><td class="whitespace-nowrap text-sm tabular-nums text-[var(--color-foreground-muted)]">{{ event.created_at|date:"M j, Y, g:i A" }}</td></tr>{% endfor %}</tbody></table></div>{% else %}{% include "partials/empty_state.html" with empty_title="No audit events" empty_body="Sensitive administrative and security actions will appear here when they occur." empty_icon="scroll-text" %}{% endif %}
+  </section>
+  {% include "partials/pagination.html" %}
+{% endblock %}

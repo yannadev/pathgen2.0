@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'archive' as action_url %}
+{% include "modals/_form_dialog.html" with form=archive_form dialog_id='archive-class-confirm' dialog_name='archive' title='Archive this class?' description='The class leaves active monitoring lists while its teacher assignment, memberships, and history remain preserved.' context_note=selected_class.code submit_label='Archive class' action_url=action_url danger=True %}

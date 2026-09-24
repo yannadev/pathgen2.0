@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="color-scheme" content="only light">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}PathGen{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'dist/app.css' %}">
+  </head>
+  <body class="bg-[var(--color-background)] text-[var(--color-foreground)] antialiased">
+    <a href="#main-content" class="sr-only z-50 rounded-md bg-[var(--color-surface)] px-4 py-3 text-[var(--color-info-fg)] focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+      Skip to main content
+    </a>
+    <div class="app-shell flex" data-app-shell data-sidebar-collapsed="false">
+      <aside class="desktop-sidebar sticky top-0 hidden h-screen shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] lg:flex lg:flex-col" aria-label="Primary navigation">
+        {% include "partials/sidebar.html" with mobile=False %}
+      </aside>
+
+      <div class="min-w-0 flex-1">
+        <header class="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 lg:hidden">
+          <a href="{% if request.user.role == 'admin' %}{% url 'admin_portal:dashboard' %}{% else %}{% url 'account:my_account' %}{% endif %}" class="inline-flex min-h-11 items-center gap-2 font-semibold">
+            <img src="{% static 'images/brand/pathgen-mark.webp' %}" alt="" class="size-8 object-contain">
+            <span>PathGen</span>
+          </a>
+          <button type="button" class="button-quiet size-11 p-0" data-dialog-open="mobile-navigation" aria-label="Open navigation">
+            <i data-lucide="menu" aria-hidden="true" class="size-5"></i>
+          </button>
+        </header>
+
+        <main id="main-content" class="mx-auto w-full max-w-[90rem] px-4 py-6 sm:px-6 lg:px-10 lg:py-9">
+          {% include "partials/messages.html" %}
+          {% include "partials/breadcrumbs.html" %}
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+
+    <dialog id="mobile-navigation" class="modal-dialog drawer-dialog p-0 lg:hidden" data-dialog aria-labelledby="mobile-navigation-title">
+      <h2 id="mobile-navigation-title" class="sr-only" data-dialog-initial-focus tabindex="-1">Navigation</h2>
+      <button type="button" class="button-quiet absolute right-3 top-3 z-10 size-11 p-0" data-dialog-close aria-label="Close navigation">
+        <i data-lucide="x" aria-hidden="true" class="size-5"></i>
+      </button>
+      {% include "partials/sidebar.html" with mobile=True %}
+    </dialog>
+    {% include "modals/auth/logout_confirm.html" %}
+    <script src="{% static 'dist/app.js' %}" defer></script>
+  </body>
+</html>

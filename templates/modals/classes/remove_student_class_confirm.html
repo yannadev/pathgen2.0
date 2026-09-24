@@ -1,0 +1,2 @@
+{% url 'admin_portal:membership_remove' selected_class.id selected_membership.id as action_url %}
+{% include "modals/_form_dialog.html" with form=remove_student_form dialog_id='remove-student-class-confirm' dialog_name='remove_student' title='Close this membership?' description='The student leaves this monitoring group. The historical membership remains and the student’s learning access is unchanged.' context_note=selected_membership.student.username submit_label='Close membership' action_url=action_url danger=True %}

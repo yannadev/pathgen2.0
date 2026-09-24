@@ -1,0 +1,2 @@
+{% url 'admin_portal:user_action' selected_user.id 'reactivate' as action_url %}
+{% include "modals/_form_dialog.html" with form=reactivate_form dialog_id='reactivate-user-confirm' dialog_name='reactivate' title='Reactivate this account?' description='The user may sign in again, subject to global Student Study Access. Reactivation does not grant class membership or learning eligibility.' context_note=selected_user.username submit_label='Reactivate account' action_url=action_url %}

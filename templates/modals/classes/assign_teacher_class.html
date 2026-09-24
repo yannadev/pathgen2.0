@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'assign' as action_url %}
+{% include "modals/_form_dialog.html" with form=assign_form dialog_id='assign-teacher-class' dialog_name='assign' title='Assign the current teacher' description='Choose one active teacher or leave the class unassigned. Assignment changes monitoring scope only.' context_note=selected_class.code submit_label='Save teacher assignment' action_url=action_url %}

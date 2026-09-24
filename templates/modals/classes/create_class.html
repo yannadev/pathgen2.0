@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_create' as action_url %}
+{% include "modals/_form_dialog.html" with form=create_form dialog_id='create-class' dialog_name='create' title='Create a class' description='Create a monitoring group with a unique code and optional current teacher. Class membership never grants learning access.' submit_label='Create class' action_url=action_url %}

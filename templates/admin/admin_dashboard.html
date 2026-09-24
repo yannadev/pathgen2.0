@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Admin dashboard · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl">
+    <h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Admin workspace</h1>
+    <p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Manage the people, monitoring structure, and global access controls that support PathGen.</p>
+  </header>
+
+  <section class="surface-panel mt-8 p-5 sm:p-6" aria-labelledby="access-status-title">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div>
+        <h2 id="access-status-title" class="text-xl font-semibold">Access status</h2>
+        <p class="mt-1 text-sm leading-6 text-[var(--color-foreground-muted)]">Read-only here. All access changes happen through reasoned confirmation in Overrides.</p>
+      </div>
+      <a href="{% url 'admin_portal:overrides' %}" class="button-secondary shrink-0">Review Overrides<i data-lucide="chevron-right" aria-hidden="true" class="size-4"></i></a>
+    </div>
+    <dl class="mt-6 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
+      <div class="flex flex-col justify-between gap-2 py-4 sm:flex-row sm:items-center">
+        <div><dt class="font-semibold">Student Study Access</dt><dd class="mt-1 text-sm text-[var(--color-foreground-muted)]">Controls student sign-in and study requests only.</dd></div>
+        <span class="status-badge" data-state="{% if setting.study_access_enabled %}open{% else %}closed{% endif %}"><i data-lucide="{% if setting.study_access_enabled %}circle-check{% else %}circle-alert{% endif %}" aria-hidden="true" class="size-4"></i>{% if setting.study_access_enabled %}Open{% else %}Closed{% endif %}</span>
+      </div>
+      <div class="flex flex-col justify-between gap-2 py-4 sm:flex-row sm:items-center">
+        <div><dt class="font-semibold">Post-test Access</dt><dd class="mt-1 text-sm text-[var(--color-foreground-muted)]">Adds a global gate; path eligibility is still required.</dd></div>
+        <span class="status-badge" data-state="{% if setting.posttest_access_enabled %}open{% else %}closed{% endif %}"><i data-lucide="{% if setting.posttest_access_enabled %}circle-check{% else %}circle-alert{% endif %}" aria-hidden="true" class="size-4"></i>{% if setting.posttest_access_enabled %}Unlocked{% else %}Locked{% endif %}</span>
+      </div>
+    </dl>
+  </section>
+
+  <div class="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.42fr)]">
+    <section class="surface-panel p-5 sm:p-6" aria-labelledby="oversight-title">
+      <h2 id="oversight-title" class="text-xl font-semibold">Research and system oversight</h2>
+      <div class="mt-6 py-10 text-center">
+        <div class="mx-auto flex size-12 items-center justify-center rounded-full bg-[var(--color-secondary)] text-[var(--color-foreground-muted)]"><i data-lucide="layout-dashboard" aria-hidden="true" class="size-6"></i></div>
+        <p class="mt-5 font-semibold">Oversight reporting is not part of this phase</p>
+        <p class="mx-auto mt-2 max-w-[65ch] text-sm leading-6 text-[var(--color-foreground-muted)]">This shell intentionally contains no charts, derived metrics, or synthetic research values. Those arrive only with their documented definitions and data alternatives.</p>
+      </div>
+    </section>
+    <nav class="surface-panel p-5 sm:p-6" aria-labelledby="admin-actions-title">
+      <h2 id="admin-actions-title" class="text-xl font-semibold">Management areas</h2>
+      <ul class="mt-4 divide-y divide-[var(--color-border)]">
+        <li><a href="{% url 'admin_portal:users' %}" class="flex min-h-14 items-center justify-between gap-3 py-3 font-medium hover:text-[var(--color-info-fg)]"><span>Users</span><i data-lucide="chevron-right" aria-hidden="true" class="size-4"></i></a></li>
+        <li><a href="{% url 'admin_portal:classes' %}" class="flex min-h-14 items-center justify-between gap-3 py-3 font-medium hover:text-[var(--color-info-fg)]"><span>Classes</span><i data-lucide="chevron-right" aria-hidden="true" class="size-4"></i></a></li>
+        <li><a href="{% url 'admin_portal:overrides' %}" class="flex min-h-14 items-center justify-between gap-3 py-3 font-medium hover:text-[var(--color-info-fg)]"><span>Overrides</span><i data-lucide="chevron-right" aria-hidden="true" class="size-4"></i></a></li>
+        <li><a href="{% url 'admin_portal:audit_logs' %}" class="flex min-h-14 items-center justify-between gap-3 py-3 font-medium hover:text-[var(--color-info-fg)]"><span>Audit Logs</span><i data-lucide="chevron-right" aria-hidden="true" class="size-4"></i></a></li>
+      </ul>
+    </nav>
+  </div>
+{% endblock %}

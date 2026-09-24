@@ -1,7 +1,48 @@
-import { createIcons, HeartPulse } from "lucide";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CircleCheck,
+  GraduationCap,
+  HeartPulse,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ScrollText,
+  School,
+  SlidersHorizontal,
+  UserRound,
+  Users,
+  X,
+  createIcons,
+} from "lucide";
 
 function initializeLucide() {
-  createIcons({ icons: { HeartPulse } });
+  createIcons({
+    icons: {
+      BookOpen,
+      ChevronLeft,
+      ChevronRight,
+      CircleAlert,
+      CircleCheck,
+      GraduationCap,
+      HeartPulse,
+      LayoutDashboard,
+      LogOut,
+      Menu,
+      PanelLeftClose,
+      PanelLeftOpen,
+      ScrollText,
+      School,
+      SlidersHorizontal,
+      UserRound,
+      Users,
+      X,
+    },
+  });
 }
 
 if (document.readyState === "loading") {

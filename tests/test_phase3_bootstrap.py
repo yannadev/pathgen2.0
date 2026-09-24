@@ -7,7 +7,7 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from apps.accounts.models import User
-from apps.core.models import AuditEvent
+from apps.core.models import AuditEvent, SystemSetting
 
 
 class TrustedAdminBootstrapTests(TestCase):
@@ -33,6 +33,9 @@ class TrustedAdminBootstrapTests(TestCase):
         self.assertTrue(
             AuditEvent.objects.filter(action="user.admin_bootstrapped", target_id=admin.pk).exists()
         )
+        setting = SystemSetting.objects.get(singleton_key=1)
+        self.assertEqual(setting.changed_by, admin)
+        self.assertEqual(setting.revision, 0)
 
     def test_bootstrap_requires_environment_password_and_unique_username(self):
         with patch.dict("os.environ", {}, clear=True), self.assertRaises(CommandError):
@@ -53,4 +56,3 @@ class TrustedAdminBootstrapTests(TestCase):
                     last_name="Account",
                     password_env="TEST_BOOTSTRAP_PASSWORD",
                 )
-

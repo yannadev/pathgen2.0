@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'add_students' as action_url %}
+{% include "modals/_form_dialog.html" with form=add_students_form dialog_id='add-student-class' dialog_name='add_students' title='Add students to this class' description='Select one or more active students without an open membership in this class. Membership supports teacher monitoring only.' context_note=selected_class.code submit_label='Add selected students' action_url=action_url %}

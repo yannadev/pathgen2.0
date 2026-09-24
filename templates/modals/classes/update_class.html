@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'update' as action_url %}
+{% include "modals/_form_dialog.html" with form=update_form dialog_id='update-class' dialog_name='update' title='Update class details' description='Change the class code or name. Status and assignments use their dedicated lifecycle actions.' context_note=selected_class.code submit_label='Save class details' action_url=action_url %}

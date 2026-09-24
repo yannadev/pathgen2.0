@@ -1,0 +1,31 @@
+<dialog id="{{ dialog_id }}" class="modal-dialog p-0" data-dialog {% if active_dialog == dialog_name %}data-dialog-auto-open{% endif %} aria-labelledby="{{ dialog_id }}-title" aria-describedby="{{ dialog_id }}-description">
+  <div class="p-6 sm:p-7">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 id="{{ dialog_id }}-title" class="text-2xl font-semibold tracking-[-0.02em]" data-dialog-initial-focus tabindex="-1">{{ title }}</h2>
+        <p id="{{ dialog_id }}-description" class="mt-3 max-w-[65ch] leading-7 text-[var(--color-foreground-muted)]">{{ description }}</p>
+      </div>
+      <button type="button" class="button-quiet size-11 shrink-0 p-0" data-dialog-close aria-label="Close {{ title|lower }}"><i data-lucide="x" aria-hidden="true" class="size-5"></i></button>
+    </div>
+    {% if context_note %}<div class="mt-5 rounded-lg bg-[var(--color-info-bg)] p-4 text-sm leading-6 text-[var(--color-info-fg)]">{{ context_note }}</div>{% endif %}
+    <form method="post" action="{{ action_url }}" class="mt-7" novalidate>
+      {% csrf_token %}
+      {% include "partials/form_errors.html" with form=form summary_id=dialog_id|add:'-errors' %}
+      {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+      <div class="space-y-5">
+        {% for field in form.visible_fields %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="text-sm font-semibold">{{ field.label }}</label>
+            {% if field.help_text %}<p class="mt-1 text-sm leading-6 text-[var(--color-foreground-muted)]">{{ field.help_text }}</p>{% endif %}
+            {{ field }}
+            <div id="{{ field.id_for_label }}_error" class="mt-2 min-h-5 text-sm font-medium text-[var(--color-error-fg)]">{% for error in field.errors %}{{ error }}{% endfor %}</div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button type="button" class="button-secondary" data-dialog-close>Cancel</button>
+        <button type="submit" class="{% if danger %}button-danger{% else %}button-primary{% endif %}">{{ submit_label }}</button>
+      </div>
+    </form>
+  </div>
+</dialog>

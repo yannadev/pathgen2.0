@@ -1,0 +1,10 @@
+{% if messages %}
+  <div class="mb-6 space-y-3" aria-live="polite" aria-atomic="true">
+    {% for message in messages %}
+      <div class="flex items-start gap-3 rounded-lg bg-[var(--color-success-bg)] px-4 py-3 text-sm font-medium text-[var(--color-success-fg)]" role="status">
+        <i data-lucide="circle-check" aria-hidden="true" class="mt-0.5 size-5 shrink-0"></i>
+        <p>{{ message }}</p>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,4 +1,4 @@
-{% extends "base_auth.html" %}
+{% extends "base.html" %}
 
 {% block title %}Log out · PathGen{% endblock %}
 
@@ -8,8 +8,8 @@
     <p class="mt-4 leading-7 text-[var(--color-foreground-muted)]">Your current session will end. Your saved learning progress will remain available the next time you sign in.</p>
     <form method="post" class="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
       {% csrf_token %}
-      <a href="{% url 'account:my_account' %}" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-secondary)] px-5 py-2.5 font-semibold text-[var(--color-secondary-foreground)] hover:bg-[var(--color-secondary-hover)]">Keep me signed in</a>
-      <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-primary)] px-5 py-2.5 font-semibold text-[var(--color-primary-foreground)] hover:bg-[var(--color-primary-hover)]">Log out</button>
+      <a href="{% url 'account:my_account' %}" class="button-secondary">Keep me signed in</a>
+      <button type="submit" class="button-primary">Log out</button>
     </form>
   </section>
 {% endblock %}

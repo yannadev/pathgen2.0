@@ -1,0 +1,28 @@
+<dialog id="{{ dialog_id }}" class="modal-dialog p-0" data-dialog {% if conflict_action == action %}data-dialog-auto-open{% endif %} aria-labelledby="{{ dialog_id }}-title" aria-describedby="{{ dialog_id }}-description">
+  <div class="p-6 sm:p-7">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 id="{{ dialog_id }}-title" class="text-2xl font-semibold tracking-[-0.02em]" data-dialog-initial-focus tabindex="-1">{{ title }}</h2>
+        <p id="{{ dialog_id }}-description" class="mt-3 leading-7 text-[var(--color-foreground-muted)]">{{ description }}</p>
+      </div>
+      <button type="button" class="button-quiet size-11 shrink-0 p-0" data-dialog-close aria-label="Close confirmation"><i data-lucide="x" aria-hidden="true" class="size-5"></i></button>
+    </div>
+
+    <form method="post" action="{% url 'admin_portal:overrides' %}" class="mt-7" novalidate>
+      {% csrf_token %}
+      {{ form.action }}
+      {{ form.revision }}
+      {% include "partials/form_errors.html" with form=form summary_id=dialog_id|add:'-errors' %}
+      <div>
+        <label for="{{ form.reason.id_for_label }}" class="text-sm font-semibold">Reason for this change</label>
+        <p id="id_{{ action }}_reason_help" class="mt-1 text-sm leading-6 text-[var(--color-foreground-muted)]">This explanation is saved in the immutable audit history.</p>
+        {{ form.reason }}
+        <div id="id_{{ action }}_reason_error" class="mt-2 text-sm font-medium text-[var(--color-error-fg)]">{% for error in form.reason.errors %}{{ error }}{% endfor %}</div>
+      </div>
+      <div class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button type="button" class="button-secondary" data-dialog-close>Cancel</button>
+        <button type="submit" class="{{ submit_class }}">{{ submit_label }}</button>
+      </div>
+    </form>
+  </div>
+</dialog>

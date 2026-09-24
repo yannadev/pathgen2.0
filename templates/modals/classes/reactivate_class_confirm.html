@@ -1,0 +1,2 @@
+{% url 'admin_portal:class_action' selected_class.id 'reactivate' as action_url %}
+{% include "modals/_form_dialog.html" with form=reactivate_form dialog_id='reactivate-class-confirm' dialog_name='reactivate' title='Reactivate this class?' description='The class returns to active monitoring. Any retained teacher must still be an active teacher account.' context_note=selected_class.code submit_label='Reactivate class' action_url=action_url %}

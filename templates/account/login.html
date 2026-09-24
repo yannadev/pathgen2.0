@@ -23,15 +23,17 @@
       <form method="post" action="{% url 'account:login' %}" class="mt-7 space-y-5" novalidate>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
-        {% include "account/_form_errors.html" with form=form %}
+        {% include "partials/form_errors.html" with form=form %}
 
         <div>
           <label for="{{ form.username.id_for_label }}" class="text-sm font-medium">Username</label>
           {{ form.username }}
+          <div id="{{ form.username.id_for_label }}_error" class="mt-2 text-sm text-[var(--color-error-fg)]">{% for error in form.username.errors %}{{ error }}{% endfor %}</div>
         </div>
         <div>
           <label for="{{ form.password.id_for_label }}" class="text-sm font-medium">Password</label>
           {{ form.password }}
+          <div id="{{ form.password.id_for_label }}_error" class="mt-2 text-sm text-[var(--color-error-fg)]">{% for error in form.password.errors %}{{ error }}{% endfor %}</div>
         </div>
         <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[var(--color-primary)] px-4 py-2.5 font-semibold text-[var(--color-primary-foreground)] transition-colors hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)] disabled:cursor-not-allowed disabled:opacity-60">
           Sign in
@@ -40,4 +42,3 @@
     </section>
   </div>
 {% endblock %}
-

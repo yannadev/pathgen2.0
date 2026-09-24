@@ -1,0 +1,57 @@
+{% load static %}
+<div class="flex min-h-full flex-col px-3 py-4">
+  <div class="flex min-h-12 items-center gap-3 px-2">
+    <img src="{% static 'images/brand/pathgen-mark.webp' %}" alt="" class="size-9 shrink-0 object-contain">
+    <div class="sidebar-brand-copy min-w-0">
+      <p class="text-lg font-semibold tracking-[-0.02em]">PathGen</p>
+      <p class="text-xs text-[var(--color-foreground-muted)]">Adaptive mathematics</p>
+    </div>
+    {% if not mobile %}
+      <button type="button" class="button-quiet ml-auto size-11 shrink-0 p-0" data-sidebar-toggle aria-expanded="true" aria-label="Collapse sidebar">
+        <i data-lucide="panel-left-close" aria-hidden="true" class="size-5 [*[data-sidebar-collapsed='true']_&]:hidden"></i>
+        <i data-lucide="panel-left-open" aria-hidden="true" class="hidden size-5 [*[data-sidebar-collapsed='true']_&]:block"></i>
+      </button>
+    {% endif %}
+  </div>
+
+  <nav class="mt-7 flex-1" aria-label="{% if mobile %}Mobile {% endif %}primary">
+    <p class="sidebar-section-label px-3 text-xs font-semibold tracking-[0.08em] text-[var(--color-foreground-muted)]">MAIN</p>
+    <ul class="mt-2 space-y-1">
+      {% if request.user.role == 'admin' %}
+        <li><a href="{% url 'admin_portal:dashboard' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.url_name == 'dashboard' and request.resolver_match.namespace == 'admin_portal' %}aria-current="page"{% endif %}><i data-lucide="layout-dashboard" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Dashboard</span></a></li>
+        <li><a href="{% url 'admin_portal:users' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.url_name == 'users' %}aria-current="page"{% endif %}><i data-lucide="users" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Users</span></a></li>
+        <li><a href="{% url 'admin_portal:classes' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.url_name == 'classes' %}aria-current="page"{% endif %}><i data-lucide="school" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Classes</span></a></li>
+        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true" title="Content pages are introduced in Phase 5"><i data-lucide="book-open" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Content</span></span></li>
+        <li><a href="{% url 'admin_portal:overrides' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.url_name == 'overrides' %}aria-current="page"{% endif %}><i data-lucide="sliders-horizontal" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Overrides</span></a></li>
+        <li><a href="{% url 'admin_portal:audit_logs' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.url_name == 'audit_logs' %}aria-current="page"{% endif %}><i data-lucide="scroll-text" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Audit Logs</span></a></li>
+      {% elif request.user.role == 'teacher' %}
+        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="layout-dashboard" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Dashboard</span></span></li>
+        <li><a href="{% url 'teacher:my_classes' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.namespace == 'teacher' %}aria-current="page"{% endif %}><i data-lucide="school" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">My Classes</span></a></li>
+        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="book-open" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Content</span></span></li>
+      {% else %}
+        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="layout-dashboard" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Dashboard</span></span></li>
+        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="graduation-cap" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">My Lesson</span></span></li>
+      {% endif %}
+    </ul>
+
+    <p class="sidebar-section-label mt-8 px-3 text-xs font-semibold tracking-[0.08em] text-[var(--color-foreground-muted)]">ACCOUNT</p>
+    <ul class="mt-2 space-y-1">
+      <li><a href="{% url 'account:my_account' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.namespace == 'account' and request.resolver_match.url_name != 'logout' %}aria-current="page"{% endif %}><i data-lucide="user-round" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">My Account</span></a></li>
+      <li><a href="{% url 'account:logout' %}" class="sidebar-link flex items-center gap-3 px-3" data-dialog-open="logout-confirm"><i data-lucide="log-out" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Logout</span></a></li>
+    </ul>
+  </nav>
+
+  <div class="mt-6 flex items-center gap-3 border-t border-[var(--color-border)] px-2 pt-4">
+    {% if request.user.role == 'admin' %}
+      <img src="{% static 'images/avatars/octopus.webp' %}" alt="" class="size-11 shrink-0 rounded-full bg-[var(--color-primary-subtle)] object-contain">
+    {% elif request.user.role == 'teacher' %}
+      <img src="{% static 'images/avatars/turtle.webp' %}" alt="" class="size-11 shrink-0 rounded-full bg-[var(--color-primary-subtle)] object-contain">
+    {% else %}
+      <img src="{% static 'images/avatars/jellyfish.webp' %}" alt="" class="size-11 shrink-0 rounded-full bg-[var(--color-primary-subtle)] object-contain">
+    {% endif %}
+    <div class="sidebar-user-copy min-w-0">
+      <p class="truncate text-sm font-semibold">{{ request.user.get_full_name|default:request.user.username }}</p>
+      <p class="truncate text-xs text-[var(--color-foreground-muted)]">{{ request.user.get_role_display }}</p>
+    </div>
+  </div>
+</div>

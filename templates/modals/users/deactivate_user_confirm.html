@@ -1,0 +1,2 @@
+{% url 'admin_portal:user_action' selected_user.id 'deactivate' as action_url %}
+{% include "modals/_form_dialog.html" with form=deactivate_form dialog_id='deactivate-user-confirm' dialog_name='deactivate' title='Deactivate this account?' description='The user will lose access and all active sessions will end. Learning and monitoring history is preserved.' context_note=selected_user.username submit_label='Deactivate account' action_url=action_url danger=True %}

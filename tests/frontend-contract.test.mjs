@@ -6,6 +6,9 @@ import test from "node:test";
 const packageManifest = JSON.parse(readFileSync("package.json", "utf8"));
 const tailwindConfig = readFileSync("tailwind.config.js", "utf8");
 const prelineModule = readFileSync("static/src/js/preline.js", "utf8");
+const dialogModule = readFileSync("static/src/js/dialogs.js", "utf8");
+const shellTemplate = readFileSync("templates/base.html", "utf8");
+const componentCss = readFileSync("static/src/css/components.css", "utf8");
 
 function filesUnder(root) {
   const found = [];
@@ -68,5 +71,43 @@ test("authored frontend has no dark-mode trigger", () => {
   const forbidden = /dark:|\.dark\s*\{|data-theme\s*=\s*["']dark|prefers-color-scheme\s*:\s*dark/i;
   for (const path of authoredFiles) {
     assert.doesNotMatch(readFileSync(path, "utf8"), forbidden, path);
+  }
+});
+
+test("authenticated shell forces light color scheme before CSS", () => {
+  const metaIndex = shellTemplate.indexOf('<meta name="color-scheme" content="only light">');
+  const stylesheetIndex = shellTemplate.indexOf('<link rel="stylesheet"');
+  assert.notEqual(metaIndex, -1);
+  assert.ok(metaIndex < stylesheetIndex);
+});
+
+test("dialog framework traps and restores focus and handles Escape", () => {
+  assert.match(dialogModule, /event\.key !== "Tab"/);
+  assert.match(dialogModule, /addEventListener\("cancel"/);
+  assert.match(dialogModule, /activeOpener\?\.focus\(\)/);
+  assert.match(dialogModule, /showModal\(\)/);
+  assert.match(dialogModule, /data-error-summary/);
+});
+
+test("shared interactive primitives meet the 44px touch target", () => {
+  assert.match(componentCss, /min-height:\s*44px/);
+});
+
+test("consequential modal fragments use confirm naming", () => {
+  for (const path of [
+    "templates/modals/auth/logout_confirm.html",
+    "templates/modals/users/deactivate_user_confirm.html",
+    "templates/modals/users/reactivate_user_confirm.html",
+    "templates/modals/users/delete_user_confirm.html",
+    "templates/modals/classes/remove_student_class_confirm.html",
+    "templates/modals/classes/archive_class_confirm.html",
+    "templates/modals/classes/reactivate_class_confirm.html",
+    "templates/modals/classes/delete_class_confirm.html",
+    "templates/modals/overrides/open_study_access_confirm.html",
+    "templates/modals/overrides/close_study_access_confirm.html",
+    "templates/modals/overrides/unlock_posttest_confirm.html",
+    "templates/modals/overrides/lock_posttest_confirm.html",
+  ]) {
+    assert.equal(existsSync(path), true, path);
   }
 });

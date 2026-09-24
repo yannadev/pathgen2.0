@@ -1,0 +1,19 @@
+<dialog id="user-detail" class="modal-dialog p-0" data-dialog {% if active_dialog == 'detail' %}data-dialog-auto-open{% endif %} aria-labelledby="user-detail-title">
+  <div class="p-6 sm:p-7">
+    <div class="flex items-start justify-between gap-4">
+      <div><h2 id="user-detail-title" class="text-2xl font-semibold" data-dialog-initial-focus tabindex="-1">Account details</h2><p class="mt-2 text-[var(--color-foreground-muted)]">Read-only identity and lifecycle context.</p></div>
+      <button type="button" class="button-quiet size-11 shrink-0 p-0" data-dialog-close aria-label="Close account details"><i data-lucide="x" aria-hidden="true" class="size-5"></i></button>
+    </div>
+    <dl class="mt-7 divide-y divide-[var(--color-border)] border-y border-[var(--color-border)]">
+      <div class="grid gap-1 py-4 sm:grid-cols-[9rem_1fr]"><dt class="text-sm text-[var(--color-foreground-muted)]">Username</dt><dd class="font-medium">{{ selected_user.username }}</dd></div>
+      <div class="grid gap-1 py-4 sm:grid-cols-[9rem_1fr]"><dt class="text-sm text-[var(--color-foreground-muted)]">Name</dt><dd>{{ selected_user.get_full_name }}</dd></div>
+      <div class="grid gap-1 py-4 sm:grid-cols-[9rem_1fr]"><dt class="text-sm text-[var(--color-foreground-muted)]">Role</dt><dd>{{ selected_user.get_role_display }}</dd></div>
+      <div class="grid gap-1 py-4 sm:grid-cols-[9rem_1fr]"><dt class="text-sm text-[var(--color-foreground-muted)]">Status</dt><dd>{% if selected_user.is_active %}Active{% else %}Inactive{% endif %}</dd></div>
+      {% if not selected_user.is_active %}<div class="grid gap-1 py-4 sm:grid-cols-[9rem_1fr]"><dt class="text-sm text-[var(--color-foreground-muted)]">Reason</dt><dd>{{ selected_user.deactivation_reason }}</dd></div>{% endif %}
+    </dl>
+    <div class="mt-7 flex flex-wrap justify-end gap-3">
+      <a href="?target={{ selected_user.id }}&amp;dialog=update" class="button-secondary">Update details</a>
+      {% if selected_user.is_active %}<a href="?target={{ selected_user.id }}&amp;dialog=deactivate" class="button-danger">Deactivate</a>{% else %}<a href="?target={{ selected_user.id }}&amp;dialog=reactivate" class="button-primary">Reactivate</a><a href="?target={{ selected_user.id }}&amp;dialog=delete" class="button-danger">Delete unused account</a>{% endif %}
+    </div>
+  </div>
+</dialog>

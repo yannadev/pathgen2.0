@@ -1,0 +1,2 @@
+{% url 'admin_portal:user_action' selected_user.id 'delete' as action_url %}
+{% include "modals/_form_dialog.html" with form=delete_form dialog_id='delete-user-confirm' dialog_name='delete' title='Permanently delete this unused account?' description='This exceptional action is allowed only for an inactive account created in error with no protected learning, class, or monitoring history. Enter the exact username and a reason.' context_note=selected_user.username submit_label='Delete unused account' action_url=action_url danger=True %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Overrides · PathGen{% endblock %}
+
+{% block content %}
+  <header class="max-w-3xl">
+    <h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Global access overrides</h1>
+    <p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Change system-wide student gates with a recorded reason. These controls never alter class membership, path state, scores, mastery, or feedback.</p>
+  </header>
+
+  <section class="surface-panel mt-8 divide-y divide-[var(--color-border)]" aria-label="Current access settings">
+    <article class="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div>
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-xl font-semibold">Student Study Access</h2>
+          <span class="status-badge" data-state="{% if setting.study_access_enabled %}open{% else %}closed{% endif %}">{% if setting.study_access_enabled %}Open{% else %}Closed{% endif %}</span>
+        </div>
+        <p class="mt-2 max-w-[70ch] text-sm leading-6 text-[var(--color-foreground-muted)]">When closed, students cannot sign in or continue study requests. Teacher and administrator access is unchanged, and classes never grant access.</p>
+      </div>
+      {% if setting.study_access_enabled %}<button type="button" class="button-danger" data-dialog-open="close-study-access-confirm">Close Study Access</button>{% else %}<button type="button" class="button-primary" data-dialog-open="open-study-access-confirm">Open Study Access</button>{% endif %}
+    </article>
+    <article class="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div>
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-xl font-semibold">Post-test Access</h2>
+          <span class="status-badge" data-state="{% if setting.posttest_access_enabled %}open{% else %}closed{% endif %}">{% if setting.posttest_access_enabled %}Unlocked{% else %}Locked{% endif %}</span>
+        </div>
+        <p class="mt-2 max-w-[70ch] text-sm leading-6 text-[var(--color-foreground-muted)]">Unlocking permits only independently eligible students whose learning path is post-test ready. It never makes a student eligible.</p>
+      </div>
+      {% if setting.posttest_access_enabled %}<button type="button" class="button-danger" data-dialog-open="lock-posttest-confirm">Lock Post-test Access</button>{% else %}<button type="button" class="button-primary" data-dialog-open="unlock-posttest-confirm">Unlock Post-test Access</button>{% endif %}
+    </article>
+  </section>
+
+  <section class="mt-8" aria-labelledby="latest-change-title">
+    <h2 id="latest-change-title" class="text-xl font-semibold">Latest confirmed change</h2>
+    <dl class="mt-4 grid gap-x-8 gap-y-4 border-y border-[var(--color-border)] py-5 sm:grid-cols-3">
+      <div><dt class="text-sm text-[var(--color-foreground-muted)]">Revision</dt><dd class="mt-1 font-mono text-sm tabular-nums">{{ setting.revision }}</dd></div>
+      <div><dt class="text-sm text-[var(--color-foreground-muted)]">Changed by</dt><dd class="mt-1 font-medium">{{ setting.changed_by.get_full_name|default:setting.changed_by.username }}</dd></div>
+      <div><dt class="text-sm text-[var(--color-foreground-muted)]">Changed at</dt><dd class="mt-1 text-sm tabular-nums">{{ setting.changed_at|date:"M j, Y, g:i A" }}</dd></div>
+    </dl>
+  </section>
+
+  <section class="surface-panel mt-8 overflow-hidden" aria-labelledby="history-title">
+    <div class="flex flex-col justify-between gap-3 p-5 sm:flex-row sm:items-center sm:p-6">
+      <div><h2 id="history-title" class="text-xl font-semibold">Access audit preview</h2><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Recent immutable setting events. Reasons are retained in the audit record.</p></div>
+      <a href="{% url 'admin_portal:audit_logs' %}" class="button-secondary shrink-0">View Audit Logs</a>
+    </div>
+    {% if audit_preview %}
+      <div class="overflow-x-auto border-t border-[var(--color-border)]">
+        <table class="data-table min-w-full"><thead><tr><th scope="col">Change</th><th scope="col">Actor</th><th scope="col">Reason</th><th scope="col">Time</th></tr></thead><tbody>{% for event in audit_preview %}<tr><td class="font-medium">{{ event.action }}</td><td>{{ event.actor.get_full_name|default:event.actor.username|default:"System" }}</td><td class="max-w-md text-[var(--color-foreground-muted)]">{{ event.reason|default:"—" }}</td><td class="whitespace-nowrap text-sm tabular-nums text-[var(--color-foreground-muted)]">{{ event.created_at|date:"M j, Y, g:i A" }}</td></tr>{% endfor %}</tbody></table>
+      </div>
+    {% else %}
+      {% include "partials/empty_state.html" with empty_title="No access changes yet" empty_body="Confirmed override decisions will appear here with their actor, reason, and timestamp." empty_icon="scroll-text" %}
+    {% endif %}
+  </section>
+
+  {% include "modals/overrides/open_study_access_confirm.html" %}
+  {% include "modals/overrides/close_study_access_confirm.html" %}
+  {% include "modals/overrides/unlock_posttest_confirm.html" %}
+  {% include "modals/overrides/lock_posttest_confirm.html" %}
+{% endblock %}

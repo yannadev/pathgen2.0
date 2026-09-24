@@ -1,0 +1,16 @@
+<dialog id="logout-confirm" class="modal-dialog p-0" data-dialog aria-labelledby="logout-confirm-title" aria-describedby="logout-confirm-description">
+  <div class="p-6 sm:p-7">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 id="logout-confirm-title" class="text-2xl font-semibold tracking-[-0.02em]" data-dialog-initial-focus tabindex="-1">Log out of PathGen?</h2>
+        <p id="logout-confirm-description" class="mt-3 leading-7 text-[var(--color-foreground-muted)]">Your current session will end. Saved learning and monitoring records remain available when you sign in again.</p>
+      </div>
+      <button type="button" class="button-quiet size-11 shrink-0 p-0" data-dialog-close aria-label="Close logout confirmation"><i data-lucide="x" aria-hidden="true" class="size-5"></i></button>
+    </div>
+    <form method="post" action="{% url 'account:logout' %}" class="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      {% csrf_token %}
+      <button type="button" class="button-secondary" data-dialog-close>Keep me signed in</button>
+      <button type="submit" class="button-primary">Log out</button>
+    </form>
+  </div>
+</dialog>

@@ -4,6 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.db.models.deletion import ProtectedError
 from django.db.models import Q
 
 
@@ -69,6 +70,14 @@ class Classroom(models.Model):
         ]
 
 
+class ProtectedMembershipQuerySet(models.QuerySet):
+    def delete(self):
+        raise ProtectedError(
+            "Membership history is protected; close the membership instead.",
+            set(self),
+        )
+
+
 class StudentMembership(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     classroom = models.ForeignKey(
@@ -113,3 +122,11 @@ class StudentMembership(models.Model):
             models.Index(fields=["classroom", "left_at"], name="membership_class_open_idx"),
             models.Index(fields=["student", "left_at"], name="membership_student_open_idx"),
         ]
+
+    objects = ProtectedMembershipQuerySet.as_manager()
+
+    def delete(self, using=None, keep_parents=False):
+        raise ProtectedError(
+            "Membership history is protected; close the membership instead.",
+            {self},
+        )

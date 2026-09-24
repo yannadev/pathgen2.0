@@ -27,6 +27,7 @@ from apps.accounts.throttling import (
 )
 from apps.core.models import SystemSetting
 from apps.core.services.audit import record_model_audit_event
+from apps.core.services.settings import initialize_system_setting
 
 
 logger = logging.getLogger(__name__)
@@ -111,6 +112,8 @@ def login_view(request: HttpRequest) -> HttpResponse:
             else:
                 auth_login(request, user)
                 initialize_session_lifetime(request)
+                if user.role == User.Role.ADMIN:
+                    initialize_system_setting(actor=user)
                 record_login_throttle_event(request, username, succeeded=True, actor=user)
                 record_model_audit_event(
                     actor=user,
@@ -118,9 +121,12 @@ def login_view(request: HttpRequest) -> HttpResponse:
                     target=user,
                     target_snapshot={"role": user.role, "is_active": user.is_active},
                 )
-                return HttpResponseRedirect(
-                    _safe_next_url(request, user) or reverse("account:my_account")
+                default_url = (
+                    reverse("admin_portal:dashboard")
+                    if user.role == User.Role.ADMIN
+                    else reverse("account:my_account")
                 )
+                return HttpResponseRedirect(_safe_next_url(request, user) or default_url)
         else:
             record_login_throttle_event(request, username, succeeded=False)
             _audit_login_failure(username)
@@ -144,7 +150,11 @@ def login_view(request: HttpRequest) -> HttpResponse:
 @login_required
 @require_http_methods(["GET"])
 def my_account(request: HttpRequest) -> HttpResponse:
-    return render(request, "account/my_account.html")
+    return render(
+        request,
+        "account/my_account.html",
+        {"breadcrumbs": [("", "My Account")]},
+    )
 
 
 @never_cache
@@ -172,7 +182,18 @@ def update_name(request: HttpRequest) -> HttpResponse:
                     )
                 messages.success(request, "Your name was updated.")
                 return redirect("account:my_account")
-    return render(request, "account/update_name.html", {"form": form}, status=status)
+    return render(
+        request,
+        "account/update_name.html",
+        {
+            "form": form,
+            "breadcrumbs": [
+                (reverse("account:my_account"), "My Account"),
+                ("", "Change name"),
+            ],
+        },
+        status=status,
+    )
 
 
 @never_cache
@@ -205,7 +226,18 @@ def update_password(request: HttpRequest) -> HttpResponse:
                 )
                 messages.success(request, "Your password was changed securely.")
                 return redirect("account:my_account")
-    return render(request, "account/update_password.html", {"form": form}, status=status)
+    return render(
+        request,
+        "account/update_password.html",
+        {
+            "form": form,
+            "breadcrumbs": [
+                (reverse("account:my_account"), "My Account"),
+                ("", "Change password"),
+            ],
+        },
+        status=status,
+    )
 
 
 @never_cache
@@ -213,7 +245,11 @@ def update_password(request: HttpRequest) -> HttpResponse:
 @require_http_methods(["GET", "POST"])
 def logout_view(request: HttpRequest) -> HttpResponse:
     if request.method == "GET":
-        return render(request, "auth/logout_confirm.html")
+        return render(
+            request,
+            "auth/logout_confirm.html",
+            {"breadcrumbs": [("", "Logout")]},
+        )
     user = request.user
     record_model_audit_event(
         actor=user,

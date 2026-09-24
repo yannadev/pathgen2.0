@@ -1,0 +1,11 @@
+{% if breadcrumbs %}
+  <nav class="mb-5" aria-label="Breadcrumb">
+    <ol class="flex flex-wrap items-center gap-2 text-sm text-[var(--color-foreground-muted)]">
+      <li><a href="{% if request.user.role == 'admin' %}{% url 'admin_portal:dashboard' %}{% else %}{% url 'account:my_account' %}{% endif %}" class="inline-flex min-h-11 items-center text-[var(--color-info-fg)] underline-offset-4 hover:underline">Home</a></li>
+      {% for href, label in breadcrumbs %}
+        <li aria-hidden="true"><i data-lucide="chevron-right" class="size-4"></i></li>
+        <li>{% if href %}<a href="{{ href }}" class="inline-flex min-h-11 items-center text-[var(--color-info-fg)] underline-offset-4 hover:underline">{{ label }}</a>{% else %}<span aria-current="page">{{ label }}</span>{% endif %}</li>
+      {% endfor %}
+    </ol>
+  </nav>
+{% endif %}

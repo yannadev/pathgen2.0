@@ -16,7 +16,17 @@ FIELD_CLASS = (
 )
 
 
-class LoginForm(AuthenticationForm):
+class AccessibleFormMixin:
+    """Associate rendered field help/error text with its control."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            html_name = self.add_prefix(name)
+            field.widget.attrs.setdefault("aria-describedby", f"id_{html_name}_error")
+
+
+class LoginForm(AccessibleFormMixin, AuthenticationForm):
     error_messages = {
         "invalid_login": GENERIC_LOGIN_ERROR,
         "inactive": GENERIC_LOGIN_ERROR,
@@ -39,7 +49,7 @@ class LoginForm(AuthenticationForm):
     )
 
 
-class OwnNameForm(forms.ModelForm):
+class OwnNameForm(AccessibleFormMixin, forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name"]
@@ -61,7 +71,7 @@ class OwnNameForm(forms.ModelForm):
         return value
 
 
-class OwnPasswordChangeForm(PasswordChangeForm):
+class OwnPasswordChangeForm(AccessibleFormMixin, PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():

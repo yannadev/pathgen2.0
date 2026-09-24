@@ -9,6 +9,7 @@ from django.db import transaction
 
 from apps.accounts.models import User
 from apps.core.services.audit import record_model_audit_event
+from apps.core.services.settings import initialize_system_setting
 
 
 class Command(BaseCommand):
@@ -59,4 +60,5 @@ class Command(BaseCommand):
             target=admin,
             target_snapshot={"role": admin.role, "is_active": True},
         )
+        initialize_system_setting(actor=admin)
         self.stdout.write(self.style.SUCCESS(f"Created trusted administrator {admin.username}."))

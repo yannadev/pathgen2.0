@@ -1,0 +1,2 @@
+{% url 'admin_portal:user_action' selected_user.id 'update' as action_url %}
+{% include "modals/_form_dialog.html" with form=update_form dialog_id='update-user' dialog_name='update' title='Update account details' description='Change the permitted identity fields only. Username and role remain immutable.' context_note=selected_user.username submit_label='Save account details' action_url=action_url %}

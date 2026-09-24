@@ -1,0 +1,2 @@
+{% url 'admin_portal:user_create' as action_url %}
+{% include "modals/_form_dialog.html" with form=create_form dialog_id='create-user' dialog_name='create' title='Create a managed account' description='Create an active teacher or student account. Administrator accounts are provisioned only through the trusted bootstrap command.' submit_label='Create account' action_url=action_url %}

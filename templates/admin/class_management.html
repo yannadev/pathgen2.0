@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Classes · PathGen{% endblock %}
+
+{% block content %}
+  <header class="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+    <div class="max-w-3xl"><h1 class="text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Class management</h1><p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">Maintain teacher monitoring groups and historical memberships. Classes never determine whether a student may learn.</p></div>
+    <button type="button" class="button-primary shrink-0" data-dialog-open="create-class">Create class</button>
+  </header>
+
+  <form method="get" class="mt-8 grid gap-3 sm:grid-cols-[minmax(0,1fr)_12rem_auto]" role="search">
+    <div><label for="class-search" class="sr-only">Search classes</label><input id="class-search" name="q" value="{{ query }}" class="block min-h-11 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3.5" placeholder="Search class code or name"></div>
+    <div><label for="status-filter" class="sr-only">Filter by status</label><select id="status-filter" name="status" class="block min-h-11 w-full rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-surface)] px-3.5"><option value="">All statuses</option><option value="active" {% if selected_status == 'active' %}selected{% endif %}>Active</option><option value="archived" {% if selected_status == 'archived' %}selected{% endif %}>Archived</option></select></div>
+    <button type="submit" class="button-secondary">Apply filters</button>
+  </form>
+
+  <section class="surface-panel mt-6 overflow-hidden" aria-label="Classes">
+    {% if page_obj.object_list %}<div class="overflow-x-auto"><table class="data-table min-w-full"><thead><tr><th scope="col">Class</th><th scope="col">Teacher</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>{% for class_item in page_obj %}<tr {% if selected_class.id == class_item.id %}class="bg-[var(--color-primary-subtle)]"{% endif %}><td><p class="font-semibold">{{ class_item.code }}</p><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">{{ class_item.name }}</p></td><td>{% if class_item.teacher %}{{ class_item.teacher.get_full_name|default:class_item.teacher.username }}{% else %}<span class="text-[var(--color-foreground-muted)]">Unassigned</span>{% endif %}</td><td><span class="status-badge" data-state="{{ class_item.status }}">{{ class_item.get_status_display }}</span></td><td class="text-right"><a href="?target={{ class_item.id }}#class-workspace" class="button-secondary">Manage</a></td></tr>{% endfor %}</tbody></table></div>{% else %}{% include "partials/empty_state.html" with empty_title="No matching classes" empty_body="Adjust the current search or status filter, or create the first monitoring class." empty_icon="school" %}{% endif %}
+  </section>
+  {% include "partials/pagination.html" %}
+
+  {% if selected_class %}
+    <section id="class-workspace" class="mt-10 scroll-mt-24" aria-labelledby="class-workspace-title">
+      <div class="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
+        <div><div class="flex flex-wrap items-center gap-3"><h2 id="class-workspace-title" class="text-2xl font-semibold">{{ selected_class.code }} · {{ selected_class.name }}</h2><span class="status-badge" data-state="{{ selected_class.status }}">{{ selected_class.get_status_display }}</span></div><p class="mt-2 text-sm text-[var(--color-foreground-muted)]">Current teacher: {% if selected_class.teacher %}{{ selected_class.teacher.get_full_name|default:selected_class.teacher.username }}{% else %}Unassigned{% endif %}</p></div>
+        <div class="flex flex-wrap gap-2">
+          {% if selected_class.status == 'active' %}
+            <a href="?target={{ selected_class.id }}&amp;dialog=update#class-workspace" class="button-secondary" data-dialog-open="update-class">Update</a>
+            <a href="?target={{ selected_class.id }}&amp;dialog=assign#class-workspace" class="button-secondary" data-dialog-open="assign-teacher-class">Assign teacher</a>
+            <a href="?target={{ selected_class.id }}&amp;dialog=add_students#class-workspace" class="button-primary" data-dialog-open="add-student-class">Add students</a>
+            <a href="?target={{ selected_class.id }}&amp;dialog=archive#class-workspace" class="button-danger" data-dialog-open="archive-class-confirm">Archive</a>
+          {% else %}
+            <a href="?target={{ selected_class.id }}&amp;dialog=reactivate#class-workspace" class="button-primary" data-dialog-open="reactivate-class-confirm">Reactivate</a>
+            <a href="?target={{ selected_class.id }}&amp;dialog=delete#class-workspace" class="button-danger" data-dialog-open="delete-class-confirm">Delete unused class</a>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="surface-panel mt-6 overflow-hidden">
+        <div class="p-5 sm:p-6"><h3 class="text-xl font-semibold">Membership history</h3><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">Open memberships define current teacher monitoring. Closed rows remain as history and never affect learning access.</p></div>
+        {% if memberships %}<div class="overflow-x-auto border-t border-[var(--color-border)]"><table class="data-table min-w-full"><thead><tr><th scope="col">Student</th><th scope="col">Joined</th><th scope="col">Status</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>{% for membership in memberships %}<tr><td><p class="font-semibold">{{ membership.student.get_full_name|default:membership.student.username }}</p><p class="mt-1 text-sm text-[var(--color-foreground-muted)]">{{ membership.student.username }}</p></td><td class="whitespace-nowrap text-sm tabular-nums">{{ membership.joined_at|date:"M j, Y" }}</td><td>{% if membership.left_at %}<span class="status-badge" data-state="archived">Closed</span>{% else %}<span class="status-badge" data-state="active">Open</span>{% endif %}</td><td class="text-right">{% if not membership.left_at %}<a href="?target={{ selected_class.id }}&amp;membership={{ membership.id }}&amp;dialog=remove_student#class-workspace" class="button-secondary">Remove student</a>{% else %}<span class="text-sm text-[var(--color-foreground-muted)]">Closed {{ membership.left_at|date:"M j, Y" }}</span>{% endif %}</td></tr>{% endfor %}</tbody></table></div>{% else %}{% include "partials/empty_state.html" with empty_title="No membership history" empty_body="Students added to this monitoring class will appear here. Their learning access remains independent." empty_icon="users" %}{% endif %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% include "modals/classes/create_class.html" %}
+  {% if selected_class %}
+    {% include "modals/classes/update_class.html" %}
+    {% include "modals/classes/assign_teacher_class.html" %}
+    {% include "modals/classes/add_student_class.html" %}
+    {% include "modals/classes/archive_class_confirm.html" %}
+    {% include "modals/classes/reactivate_class_confirm.html" %}
+    {% include "modals/classes/delete_class_confirm.html" %}
+    {% if selected_membership %}{% include "modals/classes/remove_student_class_confirm.html" %}{% endif %}
+  {% endif %}
+{% endblock %}
