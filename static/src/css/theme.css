@@ -1,0 +1,128 @@
+/* ============================================================
+   PATHGEN DESIGN SYSTEM - LIGHT THEME
+   Primary: #0cc0df
+
+   CONTRAST RULE
+   #0cc0df on white is about 2.1:1. Never use --color-primary
+   for body text or small links. Use --color-info-fg for cyan-family
+   text on white. Primary fills use dark foreground text. Focus rings
+   use primary-700 so they remain visible against white surfaces.
+
+   LAYER RULE
+   Components may reference only Layer 2 semantic tokens and Layer 3
+   non-color tokens. Never reference primitives or hardcode hex values
+   inside a component.
+   ============================================================ */
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../fonts/geist/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../fonts/geist/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../fonts/geist/Geist-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../fonts/geist/Geist-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('../fonts/geist/GeistMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: only light;
+
+  --primary-50: #EBF9FF;
+  --primary-100: #D1F2FC;
+  --primary-200: #A3E5F9;
+  --primary-300: #6BD4F4;
+  --primary-400: #33C6EC;
+  --primary-500: #0cc0df;
+  --primary-600: #0AA3BE;
+  --primary-700: #0A8298;
+  --primary-800: #0C6474;
+  --primary-900: #0C4B57;
+  --primary-950: #05303A;
+
+  --neutral-50: #FAFAFA;
+  --neutral-100: #F4F4F5;
+  --neutral-200: #E4E4E7;
+  --neutral-300: #D4D4D8;
+  --neutral-400: #A1A1AA;
+  --neutral-500: #71717A;
+  --neutral-600: #52525B;
+  --neutral-700: #3F3F46;
+  --neutral-800: #27272A;
+  --neutral-900: #18181B;
+
+  --success-500: #22C55E;
+  --success-700: #15803D;
+  --warning-500: #F59E0B;
+  --warning-700: #B45309;
+  --error-500: #EF4444;
+  --error-700: #B91C1C;
+
+  --color-background: var(--neutral-50);
+  --color-surface: #FFFFFF;
+  --color-foreground: var(--neutral-900);
+  --color-foreground-muted: var(--neutral-500);
+  --color-foreground-subtle: var(--neutral-400);
+  --color-foreground-inverse: #FFFFFF;
+  --color-primary: var(--primary-500);
+  --color-primary-hover: var(--primary-400);
+  --color-primary-active: var(--primary-600);
+  --color-primary-subtle: var(--primary-50);
+  --color-primary-foreground: var(--neutral-900);
+  --color-secondary: var(--neutral-100);
+  --color-secondary-hover: var(--neutral-200);
+  --color-secondary-foreground: var(--neutral-900);
+  --color-border: var(--neutral-200);
+  --color-border-strong: var(--neutral-300);
+  --color-ring: var(--primary-700);
+  --color-success: var(--success-500);
+  --color-success-bg: #F0FDF4;
+  --color-success-fg: var(--success-700);
+  --color-warning: var(--warning-500);
+  --color-warning-bg: #FFFBEB;
+  --color-warning-fg: var(--warning-700);
+  --color-error: var(--error-500);
+  --color-error-bg: #FEF2F2;
+  --color-error-fg: var(--error-700);
+  --color-info: var(--primary-500);
+  --color-info-bg: var(--primary-50);
+  --color-info-fg: var(--primary-700);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --font-sans: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --sidebar-width: 240px;
+}

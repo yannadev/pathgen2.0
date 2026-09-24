@@ -1,0 +1,37 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django/runtime
+static/dist/
+staticfiles/
+*.sqlite3
+*.log
+
+# Node
+node_modules/
+.npm-cache/
+npm-debug.log*
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build scratch
+build/
+dist/
+tmp/
+*.tmp

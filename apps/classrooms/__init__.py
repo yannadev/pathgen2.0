@@ -1,0 +1,1 @@
+"""Classrooms domain package."""

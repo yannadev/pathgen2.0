@@ -1,0 +1,31 @@
+{
+  "name": "pathgen-assets",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <25",
+    "npm": ">=10 <12"
+  },
+  "scripts": {
+    "clean": "node scripts/clean-assets.mjs",
+    "build:css": "postcss static/src/css/app.css -o static/dist/app.css",
+    "build:js": "esbuild ./static/src/js/app.js --bundle --minify --sourcemap --outfile=./static/dist/app.js",
+    "build": "npm run clean && npm run build:css && npm run build:js",
+    "test": "node --test tests/frontend-contract.test.mjs",
+    "check": "npm run build && npm test"
+  },
+  "dependencies": {
+    "chart.js": "4.5.1",
+    "lucide": "1.44.0",
+    "preline": "5.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.3.3",
+    "esbuild": "0.28.2",
+    "postcss": "8.5.28",
+    "postcss-cli": "12.0.0",
+    "postcss-import": "17.0.0",
+    "tailwindcss": "4.3.3"
+  }
+}
