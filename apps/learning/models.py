@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 
@@ -240,3 +241,20 @@ class Response(models.Model):
     class Meta:
         db_table = "learning_response"
         indexes = [models.Index(fields=["answered_at"], name="response_answered_idx")]
+
+    @property
+    def is_correct(self) -> bool:
+        return bool(self.selected_choice.is_correct)
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            current = type(self).objects.filter(pk=self.pk).first()
+            if current is not None and any(
+                getattr(current, field) != getattr(self, field)
+                for field in ("session_item_id", "selected_choice_id", "hint_used", "answered_at")
+            ):
+                raise ValidationError("Submitted responses are locked and cannot be changed.")
+        return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Submitted responses are locked and cannot be deleted.")

@@ -30,7 +30,7 @@
         <li><a href="{% url 'curriculum:content' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.namespace == 'curriculum' %}aria-current="page"{% endif %}><i data-lucide="book-open" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Content</span></a></li>
       {% else %}
         <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="layout-dashboard" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">Dashboard</span></span></li>
-        <li><span class="sidebar-link flex items-center gap-3 px-3" aria-disabled="true"><i data-lucide="graduation-cap" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">My Lesson</span></span></li>
+        <li><a href="{% url 'learning:my_lesson' %}" class="sidebar-link flex items-center gap-3 px-3" {% if request.resolver_match.namespace == 'learning' %}aria-current="page"{% endif %}><i data-lucide="graduation-cap" aria-hidden="true" class="size-5 shrink-0"></i><span class="sidebar-label">My Lesson</span></a></li>
       {% endif %}
     </ul>
 

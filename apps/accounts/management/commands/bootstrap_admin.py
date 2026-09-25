@@ -6,10 +6,11 @@ from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
 from apps.accounts.models import User
+from apps.core.models import SystemSetting
 from apps.core.services.audit import record_model_audit_event
-from apps.core.services.settings import initialize_system_setting
 
 
 class Command(BaseCommand):
@@ -60,5 +61,14 @@ class Command(BaseCommand):
             target=admin,
             target_snapshot={"role": admin.role, "is_active": True},
         )
-        initialize_system_setting(actor=admin)
+        SystemSetting.objects.update_or_create(
+            singleton_key=1,
+            defaults={
+                "study_access_enabled": True,
+                "posttest_access_enabled": False,
+                "changed_by": admin,
+                "changed_at": timezone.now(),
+                "revision": 0,
+            },
+        )
         self.stdout.write(self.style.SUCCESS(f"Created trusted administrator {admin.username}."))

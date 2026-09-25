@@ -23,6 +23,7 @@ urlpatterns = [
     path("manage/content/", include("apps.curriculum.urls")),
     path("manage/", include("apps.core.admin_urls")),
     path("teacher/", include("apps.classrooms.urls")),
+    path("student/", include("apps.learning.urls")),
     path("account/", include("apps.accounts.urls")),
     path("", include("apps.core.urls")),
 ]

@@ -1,0 +1,79 @@
+{% extends "base_assessment.html" %}
+{% load static %}
+
+{% block title %}{{ session_label }} · PathGen{% endblock %}
+
+{% block assessment_header %}
+  {% if view_state == 'assessment' %}
+    <div class="flex items-center gap-3">
+      <p class="hidden text-sm font-medium text-[var(--color-foreground-muted)] sm:block" aria-live="polite">Question {{ item.display_order }} of {{ total_count }}</p>
+      <button type="button" class="button-quiet" data-dialog-open="exit-assessment-confirm"><i data-lucide="log-out" aria-hidden="true" class="size-4"></i>Exit</button>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if view_state == 'overview' %}
+    <section class="mx-auto max-w-3xl">
+      <p class="text-sm font-semibold text-[var(--color-info-fg)]">{{ session_label }}</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Before you begin</h1>
+      <p class="mt-4 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">This assessment contains {{ item_count }} questions shown one at a time. Each submitted answer is saved and locked, so review your choice before submitting.</p>
+      <ul class="mt-6 space-y-3 rounded-[var(--radius-lg)] bg-[var(--color-secondary)] p-5 text-sm leading-6">
+        <li class="flex gap-3"><i data-lucide="save" aria-hidden="true" class="mt-0.5 size-5 shrink-0 text-[var(--color-info-fg)]"></i><span>You can leave an unfinished assessment and resume from the first unanswered question.</span></li>
+        <li class="flex gap-3"><i data-lucide="keyboard" aria-hidden="true" class="mt-0.5 size-5 shrink-0 text-[var(--color-info-fg)]"></i><span>Use the labeled A–D radio choices with a keyboard, touch, or pointer.</span></li>
+        {% if session_type == 'pretest' or session_type == 'posttest' %}<li class="flex gap-3"><i data-lucide="eye-off" aria-hidden="true" class="mt-0.5 size-5 shrink-0 text-[var(--color-info-fg)]"></i><span>Correctness and explanations appear only after all 30 answers are complete.</span></li>{% else %}<li class="flex gap-3"><i data-lucide="message-circle-check" aria-hidden="true" class="mt-0.5 size-5 shrink-0 text-[var(--color-info-fg)]"></i><span>Feedback and the approved explanation appear after each saved answer.</span></li>{% endif %}
+      </ul>
+      {% if workflow_error %}<div class="mt-5 rounded-[var(--radius-md)] bg-[var(--color-error-bg)] p-4 text-[var(--color-error-fg)]" role="alert">{{ workflow_error }}</div>{% endif %}
+      <div class="mt-7 flex flex-wrap gap-3">
+        {% if existing_session.status == 'completed' %}
+          <a href="{% url 'learning:assessment_result' existing_session.id %}" class="button-primary">View completed result<i data-lucide="arrow-right" aria-hidden="true" class="size-4"></i></a>
+        {% else %}
+          <form method="post" action="{% url 'learning:assessment_start' session_type %}">{% csrf_token %}<button type="submit" class="button-primary">{% if existing_session %}Resume assessment{% else %}Start assessment{% endif %}<i data-lucide="arrow-right" aria-hidden="true" class="size-4"></i></button></form>
+        {% endif %}
+        <a href="{% url 'learning:my_lesson' %}" class="button-secondary">Back to My Lesson</a>
+      </div>
+    </section>
+  {% elif view_state == 'assessment' %}
+    <section class="mx-auto max-w-3xl">
+      <div class="flex items-end justify-between gap-4"><div><p class="text-sm font-semibold text-[var(--color-info-fg)]">{{ session_label }}</p><h1 class="mt-1 text-2xl font-semibold tracking-[-0.02em]">Question {{ item.display_order }}</h1></div><p class="text-sm font-medium text-[var(--color-foreground-muted)]">{{ answered_count }} saved</p></div>
+      <div class="mt-4 h-2 overflow-hidden rounded-full bg-[var(--color-secondary)]" role="progressbar" aria-label="Assessment progress" aria-valuemin="0" aria-valuemax="{{ total_count }}" aria-valuenow="{{ answered_count }}"><div class="h-full bg-[var(--color-primary)]" style="width: {% widthratio answered_count total_count 100 %}%"></div></div>
+
+      {% if question.presentation_type == 'figure' %}
+        {% if question.image_asset %}<figure class="mt-7"><img src="{% static 'images/' %}{{ question.image_asset }}" alt="{{ question.image_alt }}" class="max-h-96 rounded-[var(--radius-md)] object-contain"><figcaption class="mt-2 text-sm text-[var(--color-foreground-muted)]">{{ question.image_alt }}</figcaption></figure>{% else %}{% include "shared/_safe_visual.html" with alt_text=question.image_alt component_label=question.visual_component %}{% endif %}
+      {% elif question.presentation_type == 'video' %}
+        <section class="mt-7" data-video-question data-video-cue="{{ question.video_pause_seconds }}">
+          <div class="aspect-video overflow-hidden rounded-[var(--radius-lg)] bg-[var(--color-secondary)]"><iframe id="activity-video-{{ item.id }}" data-youtube-player class="size-full" src="{{ video_embed_url }}" title="{{ question.video.title }}" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+          <div class="mt-3 flex flex-wrap items-center gap-3"><p class="text-sm text-[var(--color-foreground-muted)]">The video pauses at {{ question.video_pause_seconds }} seconds for this question.</p><button type="button" class="button-secondary" data-reveal-video-question>Reveal question now</button></div>
+          <details class="mt-2"><summary class="min-h-11 cursor-pointer py-3 font-medium text-[var(--color-info-fg)]">Read transcript</summary><p class="whitespace-pre-line text-sm leading-6 text-[var(--color-foreground-muted)]">{{ question.video.transcript }}</p></details>
+        </section>
+      {% endif %}
+
+      <div class="mt-7" data-video-question-content>
+        <h2 class="text-xl font-semibold leading-8" tabindex="-1">{{ question.prompt }}</h2>
+        {% if answer_error %}<div class="mt-4 rounded-[var(--radius-md)] bg-[var(--color-error-bg)] p-4 text-[var(--color-error-fg)]" role="alert" tabindex="-1" data-error-summary>{{ answer_error }}</div>{% endif %}
+        {% if session_type == 'foundational' and not response %}
+          {% if hint_revealed %}<aside class="mt-5 rounded-[var(--radius-md)] bg-[var(--color-info-bg)] p-4" role="status"><h3 class="font-semibold text-[var(--color-info-fg)]">Hint</h3><p class="mt-2 leading-7">{{ question.hint }}</p></aside>{% else %}<form method="post" action="{% url 'learning:assessment_hint' session.id item.id %}" class="mt-4">{% csrf_token %}<button type="submit" class="button-secondary"><i data-lucide="lightbulb" aria-hidden="true" class="size-4"></i>Show hint</button></form>{% endif %}
+        {% endif %}
+
+        <form method="post" action="{% url 'learning:assessment_answer' session.id item.id %}" class="mt-6">
+          {% csrf_token %}
+          <fieldset {% if response %}disabled{% endif %}><legend class="sr-only">Choose one answer</legend><div class="grid gap-3">{% for choice in question.choices.all %}<label class="flex min-h-14 cursor-pointer items-center gap-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 has-[:checked]:border-[var(--color-info-fg)] has-[:checked]:bg-[var(--color-info-bg)]"><input type="radio" name="choice" value="{{ choice.id }}" class="size-5" required {% if response.selected_choice_id == choice.id %}checked{% endif %}><span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-secondary)] font-semibold">{{ choice.label }}</span><span>{{ choice.text }}</span></label>{% endfor %}</div></fieldset>
+          {% if not response %}<button type="submit" class="button-primary mt-5">Submit answer</button>{% endif %}
+        </form>
+
+        {% if response %}
+          {% if reveal_feedback %}<section class="mt-6 rounded-[var(--radius-lg)] {% if response.is_correct %}bg-[var(--color-success-bg)] text-[var(--color-success-fg)]{% else %}bg-[var(--color-warning-bg)] text-[var(--color-warning-fg)]{% endif %} p-5" tabindex="-1" data-assessment-feedback><h3 class="text-lg font-semibold">{% if response.is_correct %}Correct{% else %}Incorrect{% endif %}</h3><p class="mt-2 leading-7">{% if response.is_correct %}{{ question.feedback_correct }}{% else %}{{ question.feedback_incorrect }}{% endif %}</p><p class="mt-3 leading-7 text-[var(--color-foreground)]">{{ question.explanation }}</p></section>{% else %}<p class="mt-6 rounded-[var(--radius-md)] bg-[var(--color-info-bg)] p-4 font-medium text-[var(--color-info-fg)]" tabindex="-1" data-assessment-feedback>Answer saved. Correctness and the explanation remain hidden until all {{ total_count }} questions are complete.</p>{% endif %}
+          {% if next_order %}<a href="{% url 'learning:assessment_question' session.id next_order %}" class="button-primary mt-5">Next question<i data-lucide="arrow-right" aria-hidden="true" class="size-4"></i></a>{% endif %}
+        {% endif %}
+      </div>
+    </section>
+  {% elif view_state == 'result' %}
+    <section class="mx-auto max-w-4xl">
+      <p class="text-sm font-semibold text-[var(--color-info-fg)]">{{ session_label }}</p><h1 class="mt-2 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">Assessment complete</h1><p class="mt-3 max-w-[70ch] leading-7 text-[var(--color-foreground-muted)]">All responses are saved and locked. Review the approved answers and explanations below.</p>
+      <div class="mt-8 space-y-4">{% for item in items %}<details class="surface-panel p-5"><summary class="min-h-11 cursor-pointer font-semibold">Question {{ item.display_order }} · {% if item.response.is_correct %}Correct{% else %}Incorrect{% endif %}</summary><div class="mt-4 border-t border-[var(--color-border)] pt-4"><p class="font-medium">{{ item.question.prompt }}</p><p class="mt-3 text-sm text-[var(--color-foreground-muted)]">Your answer: {{ item.response.selected_choice.label }} · {{ item.response.selected_choice.text }}</p><p class="mt-2 text-sm text-[var(--color-foreground-muted)]">{{ item.question.explanation }}</p></div></details>{% endfor %}</div>
+      <a href="{% url 'learning:my_lesson' %}" class="button-primary mt-7">Continue to My Lesson<i data-lucide="arrow-right" aria-hidden="true" class="size-4"></i></a>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block dialogs %}{% if view_state == 'assessment' %}{% include "assessment/exit_assessment_confirm.html" %}{% endif %}{% endblock %}

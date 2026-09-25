@@ -47,7 +47,7 @@
     </div>
     {% if audit_preview %}
       <div class="overflow-x-auto border-t border-[var(--color-border)]">
-        <table class="data-table min-w-full"><thead><tr><th scope="col">Change</th><th scope="col">Actor</th><th scope="col">Reason</th><th scope="col">Time</th></tr></thead><tbody>{% for event in audit_preview %}<tr><td class="font-medium">{{ event.action }}</td><td>{{ event.actor.get_full_name|default:event.actor.username|default:"System" }}</td><td class="max-w-md text-[var(--color-foreground-muted)]">{{ event.reason|default:"—" }}</td><td class="whitespace-nowrap text-sm tabular-nums text-[var(--color-foreground-muted)]">{{ event.created_at|date:"M j, Y, g:i A" }}</td></tr>{% endfor %}</tbody></table>
+        <table class="data-table min-w-full"><thead><tr><th scope="col">Change</th><th scope="col">Actor</th><th scope="col">Reason</th><th scope="col">Time</th></tr></thead><tbody>{% for event in audit_preview %}<tr><td class="font-medium">{{ event.action }}</td><td>{% if event.actor %}{{ event.actor.get_full_name|default:event.actor.username }}{% else %}System{% endif %}</td><td class="max-w-md text-[var(--color-foreground-muted)]">{{ event.reason|default:"—" }}</td><td class="whitespace-nowrap text-sm tabular-nums text-[var(--color-foreground-muted)]">{{ event.created_at|date:"M j, Y, g:i A" }}</td></tr>{% endfor %}</tbody></table>
       </div>
     {% else %}
       {% include "partials/empty_state.html" with empty_title="No access changes yet" empty_body="Confirmed override decisions will appear here with their actor, reason, and timestamp." empty_icon="scroll-text" %}
